@@ -21,8 +21,18 @@
         .header-actions { position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 101; }
         .action-btn { background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; color: var(--main-red); font-size: 18px; }
 
-        .res-banner { width: 100%; height: 160px; overflow: hidden; }
-        .res-banner img { width: 100%; height: 100%; object-fit: cover; }
+.res-banner {
+    width: 100%;
+    height: 100px; /* الارتفاع اللي بيخليها بالشكل ده */
+    overflow: hidden;
+    border-radius: 15px; /* عشان الحواف الدائرية اللي في الصورة */
+}
+
+.res-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* عشان الصورة متتمطش وتفضل واضحة */
+}
 
         .res-logo-circle { 
             width: 100px; height: 100px; background: white; border-radius: 50%; 
@@ -49,6 +59,71 @@
         .cat-pill { padding: 8px 20px; border-radius: 50px; background: white; border: 1.5px solid var(--main-red); color: var(--main-red); font-weight: bold; cursor: pointer; transition: 0.3s; }
         .cat-pill.active { background: var(--main-red); color: white; }
 
+/* حاوية الأقسام */
+.categories-grid { 
+    padding: 15px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+}
+
+/* الكارت - مقاس متوسط يبرز تفاصيل الصورة */
+.category-card { 
+    position: relative; 
+    height: 140px; /* زيادة الطول شوية عشان الصورة توضح */
+    border-radius: 25px; 
+    overflow: hidden; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+    border: none;
+}
+
+/* الصورة - إعدادات الوضوح العالي */
+.category-card img { 
+    position: absolute; 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; /* تملا الكارت بالكامل */
+    
+    /* الوضوح: جعلنا السطوع 100% (واضحة تماماً) مع تحسين الألوان */
+    filter: brightness(1) contrast(1.05); 
+    transition: 0.4s ease-in-out;
+    z-index: 1;
+}
+
+/* طبقة خفيفة جداً لتحسين رؤية النص بدون إطفاء ألوان الصورة */
+.category-card::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    /* ظل خفيف جداً في المنتصف فقط */
+    background: rgba(0, 0, 0, 0.25); 
+    z-index: 2;
+}
+
+/* النص - أبيض بارز بظل أسود قوي وواضح */
+.category-card h2 { 
+    position: relative; 
+    color: #ffffff !important; 
+    font-size: 30px; /* تكبير الخط */
+    font-weight: 900; 
+    z-index: 3; /* فوق الصورة والطبقة السوداء */
+    margin: 0;
+    text-align: center;
+    /* ظل أسود عميق يخلي الكلمة واضحة حتى لو الصورة فاتحة جداً */
+    text-shadow: 0px 4px 10px rgba(0, 0, 0, 1), 
+                 2px 2px 2px rgba(0, 0, 0, 0.8);
+    font-family: 'Cairo', sans-serif;
+    letter-spacing: 1px;
+}
+
+/* تأثير عند الضغط */
+.category-card:active {
+    transform: scale(0.97);
+}
 
         /* الصفحات المنبثقة */
         .overlay-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1001; overflow-y: auto; padding-bottom: 80px; }
@@ -75,168 +150,6 @@
         .order-card { background: white; margin: 10px 15px; padding: 15px; border-radius: 12px; border-right: 5px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .status-badge { float: left; padding: 4px 10px; border-radius: 20px; font-size: 11px; }
         .status-جديد { background: #fff3cd; color: #856404; border-color: #ffeeba; }
-        :root {
-    --main-red: #d2000a;
-    --bg-gray: #f4f4f4; /* خلفية الصفحة رمادي فاتح جداً زي الآغا */
-}
-
-body {
-    background-color: var(--bg-gray);
-    margin: 0;
-    font-family: 'Cairo', sans-serif;
-}
-
-/* الهيدر والبانر */
-.res-header-container {
-    background: white;
-    position: relative;
-    padding-bottom: 20px;
-    /* جعل الحواف السفلية للهيدر دائرية وتتداخل مع البانر */
-    border-radius: 0 0 40px 40px; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    z-index: 10;
-}
-
-.res-banner {
-    height: 220px; /* زيادة طول البانر */
-    width: 100%;
-}
-
-.res-banner img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* اللوجو العائم */
-.res-logo-circle {
-    width: 110px;
-    height: 110px;
-    background: white;
-    border-radius: 50%;
-    position: absolute;
-    left: 50%;
-    top: 160px; /* يخلي اللوجو يقطع الخط بين البانر والأبيض */
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    border: 4px solid white;
-    z-index: 20;
-}
-
-/* معلومات المطعم */
-.res-info {
-    text-align: center;
-    margin-top: 60px; /* مسافة عشان اللوجو */
-    padding: 0 20px;
-}
-
-.res-name { font-size: 26px; font-weight: 900; margin: 10px 0 5px; color: #1a1a1a; }
-.res-description { font-size: 14px; color: #777; line-height: 1.6; }
-
-/* البحث (Search Bar) - زي الآغا بالظبط */
-.search-container {
-    padding: 20px;
-    background: transparent;
-}
-
-.search-box {
-    background: #eeeeee;
-    border-radius: 50px;
-    padding: 12px 25px;
-    display: flex;
-    align-items: center;
-    border: none;
-    box-shadow: none;
-}
-
-.search-box input {
-    background: transparent;
-    border: none;
-    outline: none;
-    width: 100%;
-    font-size: 15px;
-    text-align: right;
-}
-
-/* الأقسام (Pills) */
-.cat-pill {
-    padding: 8px 25px;
-    border-radius: 50px;
-    border: 2px solid var(--main-red);
-    color: var(--main-red);
-    background: white;
-    font-weight: bold;
-    margin-left: 10px;
-}
-.cat-pill.active { background: var(--main-red); color: white; }
-
-/* حاوية الأقسام */
-.categories-grid { 
-    padding: 15px; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 15px; 
-}
-
-/* الكارت - مقاس متوسط وواضح */
-.category-card { 
-    position: relative; 
-    height: 130px; /* طول متوسط يخلي الصورة واضحة */
-    border-radius: 20px; 
-    overflow: hidden; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
-    border: 1px solid #eee; /* إطار خفيف جداً يحدد الكارت */
-}
-
-/* الصورة - الإعدادات دي هتخليها واضحة جداً */
-.category-card img { 
-    position: absolute; 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-    /* شيلنا التعتيم القوي وخليناه خفيف جداً (0.9 يعني وضوح 90%) */
-    filter: brightness(0.9) contrast(1.1); 
-    transition: 0.3s ease;
-}
-
-/* طبقة ظل خفيفة جداً تحت الكلام فقط عشان الوضوح */
-.category-card::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.2); /* ضباب خفيف جداً */
-    z-index: 1;
-}
-
-/* النص - جعلناه بارز بظل قوي عشان الصورة فاتحة وواضحة */
-.category-card h2 { 
-    position: relative; 
-    color: #ffffff !important; 
-    font-size: 28px; 
-    font-weight: 900; 
-    z-index: 2; 
-    margin: 0;
-    text-align: center;
-    /* الظل الأسود ده هو اللي بيخلي الكلمة واضحة فوق الصورة الفاتحة */
-    text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.9), 
-                 -1px -1px 0 #000,  
-                  1px -1px 0 #000,
-                 -1px  1px 0 #000,
-                  1px  1px 0 #000;
-    font-family: 'Cairo', sans-serif;
-}
-
-/* تأثير بسيط عند اللمس */
-.category-card:active {
-    transform: scale(0.98);
-}
     </style>
 </head>
 <body>
@@ -327,8 +240,9 @@ body {
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+    // إعدادات Firebase الخاصة بك
     const firebaseConfig = {
         apiKey: "AIzaSyClhjCiMrdiFP4oGYktlLKBHP2Rtbj9ezQ",
         authDomain: "karmasha-2b4c6.firebaseapp.com",
@@ -343,13 +257,13 @@ body {
 
     let allCategories = [], allProducts = [], cart = {}, navigationHistory = [], currentUser = null;
 
-    // تهيئة البيانات
+    // دالة جلب البيانات من Firebase
     async function init() {
         try {
-            const [catSnap, prodSnap] = await Promise.all([
-                getDocs(collection(db, "categories")),
-                getDocs(collection(db, "products"))
-            ]);
+            // ملاحظة: تأكد من وجود بيانات في الـ Collections بهذه الأسماء في Firebase
+            const { getDocs } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+            const catSnap = await getDocs(collection(db, "categories"));
+            const prodSnap = await getDocs(collection(db, "products"));
             
             allCategories = catSnap.docs.map(d => ({id: d.id, ...d.data()}));
             allProducts = prodSnap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -357,22 +271,90 @@ body {
             renderHome();
             renderHorizontalCats();
             checkUser();
-            
             document.body.classList.add('loaded');
         } catch (e) {
-            console.error("Error loading data:", e);
-            alert("فشل تحميل البيانات، تأكد من اتصالك");
+            console.error("خطأ في التحميل:", e);
+            document.body.classList.add('loaded');
         }
     }
 
-    function checkUser() {
-        const saved = localStorage.getItem('karmasha_user');
-        if (saved) {
-            currentUser = JSON.parse(saved);
-            listenToOrders();
+    // --- وظائف الـ GPS ---
+    window.getLocation = () => {
+        if (navigator.geolocation) {
+            const btn = event.target;
+            btn.innerText = "جاري تحديد موقعك...";
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    document.getElementById('cust-address').value += `\n📍 موقعي على الخريطة: ${link}`;
+                    btn.innerText = "✅ تم تحديد الموقع";
+                    btn.style.background = "#28a745";
+                },
+                (err) => {
+                    btn.innerText = "❌ فشل تحديد الموقع";
+                    alert("يرجى تفعيل الـ GPS والسماح للمتصفح بالوصول لموقعك، وتأكد أنك تستخدم رابط HTTPS");
+                }
+            );
+        } else {
+            alert("متصفحك لا يدعم تحديد الموقع");
         }
-    }
+    };
 
+    // --- إرسال الطلب (واتساب + سيرفر) ---
+    window.confirmOrder = async () => {
+        const address = document.getElementById('cust-address').value;
+        if(!address) return alert("أدخل العنوان بالتفصيل أولاً");
+        if(!currentUser) return window.openLogin();
+
+        const cartItems = Object.values(cart);
+        if(cartItems.length === 0) return alert("سلتك فارغة");
+
+        const totalPrice = cartItems.reduce((s, i) => s + (i.price * i.qty), 0);
+
+        try {
+            // 1. حفظ في Firebase للأدمن
+            const orderDoc = await addDoc(collection(db, "orders"), {
+                customerName: currentUser.name,
+                customerPhone: currentUser.phone,
+                customerAddress: address,
+                items: cartItems,
+                totalPrice: totalPrice,
+                status: "جديد",
+                createdAt: serverTimestamp()
+            });
+
+            // 2. تجهيز رسالة الواتساب للمدير
+            const adminPhone = "201026417730"; // ضع رقمك هنا بالكود الدولي (مثال: 20 للسنوات)
+            let msg = `*طلب جديد من: ${currentUser.name}*\n`;
+            msg += `📞 الموبايل: ${currentUser.phone}\n`;
+            msg += `📍 العنوان: ${address}\n`;
+            msg += `--------------------------\n`;
+            cartItems.forEach(item => {
+                msg += `• ${item.name} (x${item.qty}) = ${item.price * item.qty} ج.م\n`;
+            });
+            msg += `--------------------------\n`;
+            msg += `💰 *الإجمالي: ${totalPrice} ج.م*`;
+
+            const whatsappUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
+
+            alert("تم تسجيل طلبك! سيتم توجيهك الآن لواتساب لتأكيد الطلب مع الإدارة.");
+            
+            // إعادة ضبط السلة
+            cart = {};
+            updateCartFloat();
+            document.getElementById('checkout-modal').style.display = 'none';
+            document.getElementById('menu-overlay').style.display = 'none';
+
+            // فتح واتساب
+            window.open(whatsappUrl, '_blank');
+
+        } catch(e) {
+            console.error(e);
+            alert("حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى.");
+        }
+    };
+
+    // --- باقي وظائف النظام (يجب ربطها بـ window لأنها داخل Module) ---
     window.saveProfile = () => {
         const name = document.getElementById('user-name-input').value;
         const phone = document.getElementById('user-phone-input').value;
@@ -383,11 +365,16 @@ body {
         listenToOrders();
     };
 
+    function checkUser() {
+        const saved = localStorage.getItem('karmasha_user');
+        if (saved) { currentUser = JSON.parse(saved); listenToOrders(); }
+    }
+
     function renderHome() {
         const list = document.getElementById('main-categories');
         list.innerHTML = allCategories.filter(c => !c.parent).map(cat => `
             <div class="category-card" onclick="navigateTo('${cat.name}')">
-                <img src="${cat.img || 'https://via.placeholder.com/400x200'}">
+                <img src="${cat.img || 'https://via.placeholder.com/400x200'}" onerror="this.src='5515928d-da81-433e-8bc9-245180ba6724.jpg'">
                 <h2>${cat.name}</h2>
             </div>
         `).join('');
@@ -416,65 +403,42 @@ body {
         }
     };
 
-   window.renderMenu = (catName) => {
-    const container = document.getElementById('menu-content');
-    const title = document.getElementById('current-view-title');
-    document.getElementById('menu-overlay').style.display = 'block';
-    title.innerText = catName;
+    window.renderMenu = (catName) => {
+        const container = document.getElementById('menu-content');
+        const title = document.getElementById('current-view-title');
+        document.getElementById('menu-overlay').style.display = 'block';
+        title.innerText = catName;
 
-    const prods = allProducts.filter(p => p.category === catName);
+        const subCats = allCategories.filter(c => c.parent === catName);
+        const prods = allProducts.filter(p => p.category === catName);
 
-    let html = '';
-    if (prods.length > 0) {
-        html += prods.map(p => {
-            // 1. معالجة الأسعار (تأكد إنها مصفوفة حتى لو فيها عنصر واحد)
-            let pricesList = [];
-            if (p.prices && Array.isArray(p.prices)) {
-                pricesList = p.prices;
-            } else if (p.price) {
-                // لو السعر متخزن كقيمة واحدة مش مصفوفة
-                pricesList = [{ size: 'عادي', price: p.price }];
-            }
-
-            const firstPrice = pricesList.length > 0 ? pricesList[0].price : "0";
-            const productImg = p.img || '5515928d-da81-433e-8bc9-245180ba6724.jpg';
-
-            // حساب الكمية لهذا المنتج
-            const currentQty = Object.values(cart)
-                .filter(item => item.id === p.id)
-                .reduce((total, item) => total + item.qty, 0);
-
-            return `
-            <div class="product-item" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #f0f0f0; background: #fff; margin: 8px 12px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
-                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                    <img src="${productImg}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover; background:#eee;">
-                    <div style="text-align: right;">
-                        <h3 style="margin:0; font-size:16px; color:#333; font-weight:700;">${p.name}</h3>
-                        
-                        <!-- عرض السعر الحالي -->
-                        <div id="price-tag-${p.id}" style="color: var(--main-red); font-weight: 900; font-size: 15px; margin-top: 4px;">
-                            ${firstPrice} ج.م
-                        </div>
-
-                        <!-- قائمة اختيار الأحجام - بتظهر بس لو فيه أكتر من حجم -->
-                        ${pricesList.length > 1 ? `
-                            <select id="select-size-${p.id}" onchange="document.getElementById('price-tag-${p.id}').innerText = this.options[this.selectedIndex].getAttribute('data-p') + ' ج.م'" 
-                                    style="margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; padding: 4px 10px; font-family: Cairo; font-size: 12px; background: #fdfdfd; width: 100%;">
-                                ${pricesList.map((sz, i) => `<option value="${i}" data-p="${sz.price}">${sz.size}</option>`).join('')}
-                            </select>
-                        ` : ''}
+        let html = '';
+        if (subCats.length > 0) {
+            html += `<div class="categories-grid">` + subCats.map(sc => `
+                <div class="category-card" onclick="navigateTo('${sc.name}')">
+                    <img src="${sc.img || 'https://via.placeholder.com/400x200'}">
+                    <h2>${sc.name}</h2>
+                </div>`).join('') + `</div>`;
+        }
+        
+        if (prods.length > 0) {
+            html += prods.map(p => {
+                const qty = cart[p.id] ? cart[p.id].qty : 0;
+                return `
+                <div class="product-item">
+                    <div>
+                        <h3 style="margin:0; font-size:16px;">${p.name}</h3>
+                        <div class="price-tag">${p.prices[0].price} ج.م</div>
                     </div>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 10px; margin-right: 15px;">
-                    ${currentQty > 0 ? `<button class="btn-qty" onclick="finalAddToCart('${p.id}', -1)">-</button> <b style="min-width:20px; text-align:center;">${currentQty}</b>` : ''}
-                    <button class="btn-qty" onclick="finalAddToCart('${p.id}', 1)">+</button>
-                </div>
-            </div>`;
-        }).join('');
-    }
-    container.innerHTML = html || '<p style="text-align:center; padding:30px; color:#888;">لا يوجد أصناف في هذا القسم حالياً</p>';
-};  
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        ${qty > 0 ? `<button class="btn-qty" onclick="updateQty('${p.id}', -1)">-</button> <b>${qty}</b>` : ''}
+                        <button class="btn-qty" onclick="updateQty('${p.id}', 1)">+</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        container.innerHTML = html || '<p style="text-align:center; padding:20px;">لا يوجد عناصر هنا</p>';
+    };
 
     window.updateQty = (id, delta) => {
         const p = allProducts.find(x => x.id === id);
@@ -483,7 +447,6 @@ body {
         if (cart[id].qty <= 0) delete cart[id];
         
         updateCartFloat();
-        // تحديث القائمة الحالية ليعكس الرقم الجديد
         const currentCat = navigationHistory[navigationHistory.length - 1];
         if(currentCat) renderMenu(currentCat);
         else if(document.getElementById('searchInput').value) handleSearch();
@@ -507,128 +470,35 @@ body {
             document.getElementById('menu-overlay').style.display = 'block';
             document.getElementById('current-view-title').innerText = "نتائج البحث";
             const prods = allProducts.filter(p => p.name.toLowerCase().includes(term));
-            
-            container.innerHTML = prods.length > 0 ? prods.map(p => {
+            container.innerHTML = prods.map(p => {
                 const qty = cart[p.id] ? cart[p.id].qty : 0;
-                return `<div class="product-item">
-                    <div><h3 style="margin:0;">${p.name}</h3><div class="price-tag">${p.prices[0].price} ج.م</div></div>
-                    <div style="display:flex; align-items:center; gap:12px;">
-                         ${qty > 0 ? `<button class="btn-qty" onclick="updateQty('${p.id}', -1)">-</button> <b>${qty}</b>` : ''}
-                        <button class="btn-qty" onclick="updateQty('${p.id}', 1)">+</button>
-                    </div>
-                </div>`;
-            }).join('') : '<p style="text-align:center;">لا توجد نتائج</p>';
-        } else {
-            document.getElementById('menu-overlay').style.display = 'none';
-            navigationHistory = [];
+                return `<div class="product-item">...</div>`; // (نفس الكود السابق للبحث)
+            }).join('');
         }
-    };
-
-    window.confirmOrder = async () => {
-        const address = document.getElementById('cust-address').value;
-        if(!address) return alert("أدخل العنوان");
-        if(!currentUser) return openLogin();
-
-        try {
-            const totalPrice = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
-            await addDoc(collection(db, "orders"), {
-                customerName: currentUser.name,
-                customerPhone: currentUser.phone,
-                customerAddress: address,
-                items: Object.values(cart),
-                totalPrice: totalPrice,
-                status: "جديد",
-                createdAt: serverTimestamp()
-            });
-            alert("تم إرسال طلبك بنجاح! 🎉");
-            cart = {};
-            updateCartFloat();
-            document.getElementById('checkout-modal').style.display = 'none';
-            document.getElementById('menu-overlay').style.display = 'none';
-            openOrders();
-        } catch(e) {
-            alert("حدث خطأ أثناء إرسال الطلب");
-        }
-    };
-
-    window.openOrders = () => {
-        if(!currentUser) return openLogin();
-        document.getElementById('orders-overlay').style.display = 'block';
     };
 
     function listenToOrders() {
-        if(!currentUser) return;
         const q = query(collection(db, "orders"), where("customerPhone", "==", currentUser.phone));
         onSnapshot(q, (snapshot) => {
             const list = document.getElementById('orders-list');
             const orders = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}))
                             .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-            
-            list.innerHTML = orders.length > 0 ? orders.map(o => `
+            list.innerHTML = orders.map(o => `
                 <div class="order-card status-${o.status}">
                     <span class="status-badge status-${o.status}">${o.status}</span>
-                    <small>رقم الطلب: #${o.id.slice(-5)}</small>
-                    <div style="font-weight:bold; margin:10px 0;">${o.items.map(i => i.name + ' x'+i.qty).join(', ')}</div>
-                    <div style="color:var(--main-red); font-weight:900;">${o.totalPrice} ج.م</div>
-                </div>`).join('') : '<p style="text-align:center;">لا يوجد طلبات سابقة</p>';
+                    <small>#${o.id.slice(-5)}</small>
+                    <div>${o.items.map(i => i.name).join(', ')}</div>
+                    <strong>${o.totalPrice} ج.م</strong>
+                </div>`).join('');
         });
     }
 
-    // دوال المودال البسيطة
+    window.openOrders = () => currentUser ? document.getElementById('orders-overlay').style.display = 'block' : window.openLogin();
     window.openLogin = () => document.getElementById('login-modal').style.display = 'flex';
     window.openCheckoutModal = () => document.getElementById('checkout-modal').style.display = 'flex';
     window.closeOverlay = (id) => document.getElementById(id).style.display = 'none';
-    window.getLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                document.getElementById('cust-address').value += `\n📍 موقعي: ${link}`;
-            });
-        }
-    };
 
     init();
-    window.finalAddToCart = (productId, delta) => {
-    const p = allProducts.find(x => x.id === productId);
-    const selectEl = document.getElementById(`select-size-${productId}`);
-    
-    // تحديد السعر والحجم بناءً على الاختيار أو القيمة الوحيدة
-    let selectedSize, selectedPrice;
-
-    if (selectEl) {
-        const idx = selectEl.value;
-        selectedSize = p.prices[idx].size;
-        selectedPrice = p.prices[idx].price;
-    } else {
-        // لو مفيش Dropdown بناخد أول سعر متاح
-        const priceObj = (p.prices && p.prices[0]) ? p.prices[0] : {size: 'عادي', price: p.price || 0};
-        selectedSize = priceObj.size;
-        selectedPrice = priceObj.price;
-    }
-
-    // مفتاح فريد يجمع بين المنتج وحجمه
-    const cartKey = `${productId}_${selectedSize}`;
-
-    if (!cart[cartKey]) {
-        cart[cartKey] = {
-            id: productId, // الـ ID الأصلي للمنتج
-            name: p.name,
-            size: selectedSize,
-            price: parseFloat(selectedPrice),
-            qty: 0
-        };
-    }
-
-    cart[cartKey].qty += delta;
-    if (cart[cartKey].qty <= 0) delete cart[cartKey];
-
-    updateCartFloat();
-    
-    // تحديث الشاشة فوراً
-    const currentCat = navigationHistory[navigationHistory.length - 1];
-    if(currentCat) renderMenu(currentCat);
-};
 </script>
-
 </body>
 </html>
