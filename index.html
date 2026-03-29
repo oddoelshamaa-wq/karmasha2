@@ -279,27 +279,41 @@
     }
 
     // --- وظائف الـ GPS ---
-    window.getLocation = () => {
-        if (navigator.geolocation) {
-            const btn = event.target;
-            btn.innerText = "جاري تحديد موقعك...";
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                    document.getElementById('cust-address').value += `\n📍 موقعي على الخريطة: ${link}`;
-                    btn.innerText = "✅ تم تحديد الموقع";
-                    btn.style.background = "#28a745";
-                },
-                (err) => {
-                    btn.innerText = "❌ فشل تحديد الموقع";
-                    alert("يرجى تفعيل الـ GPS والسماح للمتصفح بالوصول لموقعك، وتأكد أنك تستخدم رابط HTTPS");
-                }
-            );
-        } else {
-            alert("متصفحك لا يدعم تحديد الموقع");
-        }
-    };
+  window.getLocation = () => {
+    const btn = event.target;
+    if (navigator.geolocation) {
+        btn.innerText = "جاري البحث عنك... ⏳";
+        
+        const options = {
+            enableHighAccuracy: true, // طلب أعلى دقة (GPS)
+            timeout: 10000,           // الانتظار لمدة 10 ثوانٍ
+            maximumAge: 0
+        };
 
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                document.getElementById('cust-address').value += `\n📍 موقعي على الخريطة: ${link}`;
+                btn.innerHTML = "✅ تم تحديد موقعك بنجاح";
+                btn.style.backgroundColor = "#28a745";
+            },
+            (err) => {
+                console.error(err);
+                btn.innerHTML = "❌ فشل! تأكد من تشغيل الـ GPS";
+                
+                // رسالة توضيحية للمستخدم
+                if(err.code === 1) {
+                    alert("يرجى إعطاء المتصفح صلاحية الوصول للموقع من إعدادات المتصفح");
+                } else {
+                    alert("حدث خطأ في جلب الموقع، يرجى كتابة العنوان يدوياً");
+                }
+            }, 
+            options
+        );
+    } else {
+        alert("متصفحك لا يدعم هذه الخاصية");
+    }
+};
     // --- إرسال الطلب (واتساب + سيرفر) ---
     window.confirmOrder = async () => {
         const address = document.getElementById('cust-address').value;
