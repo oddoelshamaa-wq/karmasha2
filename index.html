@@ -307,21 +307,43 @@ body {
 </div>
 
 <!-- مودالات -->
+<!-- مودال بيانات العميل المطور -->
 <div id="login-modal" class="modal" onclick="if(event.target==this) this.style.display='none'">
-    <div class="modal-content">
-        <h3 style="margin-top:0">بيانات العميل 👤</h3>
-        <div class="form-group"><label>الاسم</label><input type="text" id="user-name-input"></div>
-        <div class="form-group"><label>الموبايل</label><input type="tel" id="user-phone-input"></div>
-        <button class="btn-main" onclick="saveProfile()">حفظ البيانات</button>
-    </div>
-</div>
+    <div class="modal-content modern-modal">
+        <div class="modal-header">
+            <i class="fas fa-user-circle"></i>
+            <h3>ملف العميل</h3>
+            <p>برجاء إدخال بياناتك لتسهيل عملية التوصيل</p>
+        </div>
+        
+        <div class="form-body">
+            <div class="input-group">
+                <label><i class="fas fa-user"></i> الاسم بالكامل</label>
+                <input type="text" id="user-name-input" placeholder="مثال: محمد أحمد">
+            </div>
 
-<div id="checkout-modal" class="modal" onclick="if(event.target==this) this.style.display='none'">
-    <div class="modal-content">
-        <h3 style="margin-top:0; color:var(--main-red);">توصيل الطلب 🛵</h3>
-        <button class="btn-main" style="background:#eee; color:#333; margin-bottom:10px;" onclick="getLocation()"><i class="fas fa-location-arrow"></i> تحديد موقعي GPS</button>
-        <div class="form-group"><label>العنوان بالتفصيل</label><textarea id="cust-address" rows="3" placeholder="اسم الشارع، رقم العمارة، الدور..."></textarea></div>
-        <button class="btn-main" onclick="confirmOrder()" style="background:#25d366">إرسال الطلب (واتساب/سيرفر)</button>
+            <div class="input-group">
+                <label><i class="fas fa-phone"></i> رقم الموبايل</label>
+                <input type="tel" id="user-phone-input" placeholder="01xxxxxxxxx">
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-map-marked-alt"></i> العنوان بالتفصيل</label>
+                <textarea id="user-address-input" rows="2" placeholder="اسم الشارع، رقم العمارة، الدور..."></textarea>
+            </div>
+
+            <div class="gps-section">
+                <button class="btn-gps" onclick="getLocation(this)">
+                    <i class="fas fa-location-arrow"></i> تحديد موقعي عبر الـ GPS
+                </button>
+                <input type="hidden" id="user-gps-coords">
+                <p id="gps-status" style="font-size: 11px; margin-top: 5px; color: #666;"></p>
+            </div>
+        </div>
+
+        <button class="btn-main btn-save" onclick="saveProfile()">
+            حفظ البيانات <i class="fas fa-check-circle"></i>
+        </button>
     </div>
 </div>
 
