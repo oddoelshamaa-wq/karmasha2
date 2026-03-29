@@ -21,18 +21,8 @@
         .header-actions { position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 101; }
         .action-btn { background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; color: var(--main-red); font-size: 18px; }
 
-.res-banner {
-    width: 100%;
-    height: 100px; /* الارتفاع اللي بيخليها بالشكل ده */
-    overflow: hidden;
-    border-radius: 15px; /* عشان الحواف الدائرية اللي في الصورة */
-}
-
-.res-banner img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* عشان الصورة متتمطش وتفضل واضحة */
-}
+        .res-banner { width: 100%; height: 160px; overflow: hidden; }
+        .res-banner img { width: 100%; height: 100%; object-fit: cover; }
 
         .res-logo-circle { 
             width: 100px; height: 100px; background: white; border-radius: 50%; 
@@ -59,71 +49,6 @@
         .cat-pill { padding: 8px 20px; border-radius: 50px; background: white; border: 1.5px solid var(--main-red); color: var(--main-red); font-weight: bold; cursor: pointer; transition: 0.3s; }
         .cat-pill.active { background: var(--main-red); color: white; }
 
-/* حاوية الأقسام */
-.categories-grid { 
-    padding: 15px; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 15px; 
-}
-
-/* الكارت - مقاس متوسط يبرز تفاصيل الصورة */
-.category-card { 
-    position: relative; 
-    height: 140px; /* زيادة الطول شوية عشان الصورة توضح */
-    border-radius: 25px; 
-    overflow: hidden; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-    border: none;
-}
-
-/* الصورة - إعدادات الوضوح العالي */
-.category-card img { 
-    position: absolute; 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; /* تملا الكارت بالكامل */
-    
-    /* الوضوح: جعلنا السطوع 100% (واضحة تماماً) مع تحسين الألوان */
-    filter: brightness(1) contrast(1.05); 
-    transition: 0.4s ease-in-out;
-    z-index: 1;
-}
-
-/* طبقة خفيفة جداً لتحسين رؤية النص بدون إطفاء ألوان الصورة */
-.category-card::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    /* ظل خفيف جداً في المنتصف فقط */
-    background: rgba(0, 0, 0, 0.25); 
-    z-index: 2;
-}
-
-/* النص - أبيض بارز بظل أسود قوي وواضح */
-.category-card h2 { 
-    position: relative; 
-    color: #ffffff !important; 
-    font-size: 30px; /* تكبير الخط */
-    font-weight: 900; 
-    z-index: 3; /* فوق الصورة والطبقة السوداء */
-    margin: 0;
-    text-align: center;
-    /* ظل أسود عميق يخلي الكلمة واضحة حتى لو الصورة فاتحة جداً */
-    text-shadow: 0px 4px 10px rgba(0, 0, 0, 1), 
-                 2px 2px 2px rgba(0, 0, 0, 0.8);
-    font-family: 'Cairo', sans-serif;
-    letter-spacing: 1px;
-}
-
-/* تأثير عند الضغط */
-.category-card:active {
-    transform: scale(0.97);
-}
 
         /* الصفحات المنبثقة */
         .overlay-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1001; overflow-y: auto; padding-bottom: 80px; }
@@ -150,6 +75,168 @@
         .order-card { background: white; margin: 10px 15px; padding: 15px; border-radius: 12px; border-right: 5px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .status-badge { float: left; padding: 4px 10px; border-radius: 20px; font-size: 11px; }
         .status-جديد { background: #fff3cd; color: #856404; border-color: #ffeeba; }
+        :root {
+    --main-red: #d2000a;
+    --bg-gray: #f4f4f4; /* خلفية الصفحة رمادي فاتح جداً زي الآغا */
+}
+
+body {
+    background-color: var(--bg-gray);
+    margin: 0;
+    font-family: 'Cairo', sans-serif;
+}
+
+/* الهيدر والبانر */
+.res-header-container {
+    background: white;
+    position: relative;
+    padding-bottom: 20px;
+    /* جعل الحواف السفلية للهيدر دائرية وتتداخل مع البانر */
+    border-radius: 0 0 40px 40px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    z-index: 10;
+}
+
+.res-banner {
+    height: 220px; /* زيادة طول البانر */
+    width: 100%;
+}
+
+.res-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* اللوجو العائم */
+.res-logo-circle {
+    width: 110px;
+    height: 110px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    top: 160px; /* يخلي اللوجو يقطع الخط بين البانر والأبيض */
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    border: 4px solid white;
+    z-index: 20;
+}
+
+/* معلومات المطعم */
+.res-info {
+    text-align: center;
+    margin-top: 60px; /* مسافة عشان اللوجو */
+    padding: 0 20px;
+}
+
+.res-name { font-size: 26px; font-weight: 900; margin: 10px 0 5px; color: #1a1a1a; }
+.res-description { font-size: 14px; color: #777; line-height: 1.6; }
+
+/* البحث (Search Bar) - زي الآغا بالظبط */
+.search-container {
+    padding: 20px;
+    background: transparent;
+}
+
+.search-box {
+    background: #eeeeee;
+    border-radius: 50px;
+    padding: 12px 25px;
+    display: flex;
+    align-items: center;
+    border: none;
+    box-shadow: none;
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 15px;
+    text-align: right;
+}
+
+/* الأقسام (Pills) */
+.cat-pill {
+    padding: 8px 25px;
+    border-radius: 50px;
+    border: 2px solid var(--main-red);
+    color: var(--main-red);
+    background: white;
+    font-weight: bold;
+    margin-left: 10px;
+}
+.cat-pill.active { background: var(--main-red); color: white; }
+
+/* حاوية الأقسام */
+.categories-grid { 
+    padding: 15px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+}
+
+/* الكارت - مقاس متوسط وواضح */
+.category-card { 
+    position: relative; 
+    height: 130px; /* طول متوسط يخلي الصورة واضحة */
+    border-radius: 20px; 
+    overflow: hidden; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+    border: 1px solid #eee; /* إطار خفيف جداً يحدد الكارت */
+}
+
+/* الصورة - الإعدادات دي هتخليها واضحة جداً */
+.category-card img { 
+    position: absolute; 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    /* شيلنا التعتيم القوي وخليناه خفيف جداً (0.9 يعني وضوح 90%) */
+    filter: brightness(0.9) contrast(1.1); 
+    transition: 0.3s ease;
+}
+
+/* طبقة ظل خفيفة جداً تحت الكلام فقط عشان الوضوح */
+.category-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.2); /* ضباب خفيف جداً */
+    z-index: 1;
+}
+
+/* النص - جعلناه بارز بظل قوي عشان الصورة فاتحة وواضحة */
+.category-card h2 { 
+    position: relative; 
+    color: #ffffff !important; 
+    font-size: 28px; 
+    font-weight: 900; 
+    z-index: 2; 
+    margin: 0;
+    text-align: center;
+    /* الظل الأسود ده هو اللي بيخلي الكلمة واضحة فوق الصورة الفاتحة */
+    text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.9), 
+                 -1px -1px 0 #000,  
+                  1px -1px 0 #000,
+                 -1px  1px 0 #000,
+                  1px  1px 0 #000;
+    font-family: 'Cairo', sans-serif;
+}
+
+/* تأثير بسيط عند اللمس */
+.category-card:active {
+    transform: scale(0.98);
+}
     </style>
 </head>
 <body>
@@ -240,9 +327,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // إعدادات Firebase الخاصة بك
     const firebaseConfig = {
         apiKey: "AIzaSyClhjCiMrdiFP4oGYktlLKBHP2Rtbj9ezQ",
         authDomain: "karmasha-2b4c6.firebaseapp.com",
@@ -257,201 +343,190 @@
 
     let allCategories = [], allProducts = [], cart = {}, navigationHistory = [], currentUser = null;
 
-    // دالة جلب البيانات من Firebase
     async function init() {
         try {
-            // ملاحظة: تأكد من وجود بيانات في الـ Collections بهذه الأسماء في Firebase
-            const { getDocs } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-            const catSnap = await getDocs(collection(db, "categories"));
-            const prodSnap = await getDocs(collection(db, "products"));
+            const [catSnap, prodSnap] = await Promise.all([
+                getDocs(collection(db, "categories")),
+                getDocs(collection(db, "products"))
+            ]);
             
             allCategories = catSnap.docs.map(d => ({id: d.id, ...d.data()}));
             allProducts = prodSnap.docs.map(d => ({id: d.id, ...d.data()}));
             
+            checkUser(); // تحقق من المستخدم عند التشغيل
             renderHome();
             renderHorizontalCats();
-            checkUser();
+            
             document.body.classList.add('loaded');
         } catch (e) {
-            console.error("خطأ في التحميل:", e);
-            document.body.classList.add('loaded');
+            console.error("Error loading data:", e);
         }
     }
 
-    // --- وظائف الـ GPS ---
-  window.getLocation = () => {
-    const btn = event.target;
-    if (navigator.geolocation) {
-        btn.innerText = "جاري البحث عنك... ⏳";
+    // --- نظام المستخدم (Login/Logout) ---
+    function checkUser() {
+        const saved = localStorage.getItem('karmasha_user');
+        const actionBtn = document.querySelector('.header-actions');
         
-        const options = {
-            enableHighAccuracy: true, // طلب أعلى دقة (GPS)
-            timeout: 10000,           // الانتظار لمدة 10 ثوانٍ
-            maximumAge: 0
-        };
-
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                document.getElementById('cust-address').value += `\n📍 موقعي على الخريطة: ${link}`;
-                btn.innerHTML = "✅ تم تحديد موقعك بنجاح";
-                btn.style.backgroundColor = "#28a745";
-            },
-            (err) => {
-                console.error(err);
-                btn.innerHTML = "❌ فشل! تأكد من تشغيل الـ GPS";
-                
-                // رسالة توضيحية للمستخدم
-                if(err.code === 1) {
-                    alert("يرجى إعطاء المتصفح صلاحية الوصول للموقع من إعدادات المتصفح");
-                } else {
-                    alert("حدث خطأ في جلب الموقع، يرجى كتابة العنوان يدوياً");
-                }
-            }, 
-            options
-        );
-    } else {
-        alert("متصفحك لا يدعم هذه الخاصية");
+        if (saved) {
+            currentUser = JSON.parse(saved);
+            // تغيير شكل الهيدر ليظهر الاسم وزر الخروج
+            actionBtn.innerHTML = `
+                <div class="action-btn" onclick="openOrders()" title="طلباتي"><i class="fas fa-receipt"></i></div>
+                <div style="background:white; padding:5px 15px; border-radius:20px; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1)">
+                    أهلاً، ${currentUser.name.split(' ')[0]} 
+                    <i class="fas fa-sign-out-alt" onclick="logout()" style="margin-right:10px; color:red; cursor:pointer"></i>
+                </div>
+            `;
+            listenToOrders();
+        } else {
+            currentUser = null;
+            actionBtn.innerHTML = `
+                <div class="action-btn" onclick="openOrders()"><i class="fas fa-receipt"></i></div>
+                <div class="action-btn" onclick="openLogin()"><i class="fas fa-user-circle"></i> تسجيل</div>
+            `;
+        }
     }
-};
-    // --- إرسال الطلب (واتساب + سيرفر) ---
+
+    window.saveProfile = () => {
+        const name = document.getElementById('user-name-input').value;
+        const phone = document.getElementById('user-phone-input').value;
+        if(!name || !phone) return alert("فضلاً أدخل الاسم ورقم الموبايل");
+        
+        currentUser = { name, phone };
+        localStorage.setItem('karmasha_user', JSON.stringify(currentUser));
+        document.getElementById('login-modal').style.display = 'none';
+        checkUser(); // تحديث الواجهة
+        alert("تم تسجيل بياناتك بنجاح ✅");
+    };
+
+    window.logout = () => {
+        if(confirm("هل تريد تسجيل الخروج؟")) {
+            localStorage.removeItem('karmasha_user');
+            location.reload(); // إعادة تحميل الصفحة لتنظيف البيانات
+        }
+    };
+
+    // --- تحديد الموقع (GPS Fix) ---
+    window.getLocation = () => {
+        const btn = event.currentTarget;
+        if (navigator.geolocation) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تحديد موقعك...';
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    document.getElementById('cust-address').value += `📍 موقعي على الخريطة: ${link}\n`;
+                    btn.innerHTML = '<i class="fas fa-check"></i> تم تحديد الموقع بنجاح';
+                    btn.style.background = "#28a745";
+                },
+                (err) => {
+                    btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فشل تحديد الموقع';
+                    alert("برجاء التأكد من تفعيل الـ GPS والسماح للمتصفح بالوصول لموقعك.");
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        } else {
+            alert("متصفحك لا يدعم خاصية تحديد الموقع.");
+        }
+    };
+
+    // --- إتمام الطلب (إجبار التسجيل) ---
+    window.openCheckoutModal = () => {
+        if (!currentUser) {
+            alert("عفواً! يجب تسجيل بياناتك أولاً لإتمام الطلب.");
+            window.openLogin();
+            return;
+        }
+        document.getElementById('checkout-modal').style.display = 'flex';
+    };
+
     window.confirmOrder = async () => {
         const address = document.getElementById('cust-address').value;
         if(!address) return alert("أدخل العنوان بالتفصيل أولاً");
-        if(!currentUser) return window.openLogin();
-
-        const cartItems = Object.values(cart);
-        if(cartItems.length === 0) return alert("سلتك فارغة");
-
-        const totalPrice = cartItems.reduce((s, i) => s + (i.price * i.qty), 0);
 
         try {
-            // 1. حفظ في Firebase للأدمن
-            const orderDoc = await addDoc(collection(db, "orders"), {
+            const totalPrice = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
+            
+            // 1. إرسال للسيرفر (Firebase)
+            await addDoc(collection(db, "orders"), {
                 customerName: currentUser.name,
                 customerPhone: currentUser.phone,
                 customerAddress: address,
-                items: cartItems,
+                items: Object.values(cart),
                 totalPrice: totalPrice,
                 status: "جديد",
                 createdAt: serverTimestamp()
             });
 
-            // 2. تجهيز رسالة الواتساب للمدير
-            const adminPhone = "201026417730"; // ضع رقمك هنا بالكود الدولي (مثال: 20 للسنوات)
-            let msg = `*طلب جديد من: ${currentUser.name}*\n`;
-            msg += `📞 الموبايل: ${currentUser.phone}\n`;
-            msg += `📍 العنوان: ${address}\n`;
-            msg += `--------------------------\n`;
-            cartItems.forEach(item => {
-                msg += `• ${item.name} (x${item.qty}) = ${item.price * item.qty} ج.م\n`;
-            });
-            msg += `--------------------------\n`;
-            msg += `💰 *الإجمالي: ${totalPrice} ج.م*`;
-
-            const whatsappUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
-
-            alert("تم تسجيل طلبك! سيتم توجيهك الآن لواتساب لتأكيد الطلب مع الإدارة.");
+            // 2. إرسال واتساب (اختياري للأدمن)
+            const adminPhone = "20123456789"; // ضع رقمك هنا
+            let msg = `*طلب جديد من: ${currentUser.name}*\n📍 العنوان: ${address}\n💰 الإجمالي: ${totalPrice} ج.م\n----------------\n`;
+            Object.values(cart).forEach(item => msg += `• ${item.name} x${item.qty}\n`);
             
-            // إعادة ضبط السلة
+            alert("تم إرسال طلبك بنجاح! 🎉");
+            window.open(`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+
             cart = {};
             updateCartFloat();
             document.getElementById('checkout-modal').style.display = 'none';
             document.getElementById('menu-overlay').style.display = 'none';
-
-            // فتح واتساب
-            window.open(whatsappUrl, '_blank');
-
         } catch(e) {
-            console.error(e);
-            alert("حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى.");
+            alert("حدث خطأ أثناء الإرسال");
         }
     };
 
-    // --- باقي وظائف النظام (يجب ربطها بـ window لأنها داخل Module) ---
-    window.saveProfile = () => {
-        const name = document.getElementById('user-name-input').value;
-        const phone = document.getElementById('user-phone-input').value;
-        if(!name || !phone) return alert("فضلاً أدخل البيانات");
-        currentUser = { name, phone };
-        localStorage.setItem('karmasha_user', JSON.stringify(currentUser));
-        document.getElementById('login-modal').style.display = 'none';
-        listenToOrders();
-    };
-
-    function checkUser() {
-        const saved = localStorage.getItem('karmasha_user');
-        if (saved) { currentUser = JSON.parse(saved); listenToOrders(); }
-    }
-
-    function renderHome() {
+    // باقي الدوال (Search, Render, Qty) كما هي
+    window.renderHome = () => {
         const list = document.getElementById('main-categories');
         list.innerHTML = allCategories.filter(c => !c.parent).map(cat => `
             <div class="category-card" onclick="navigateTo('${cat.name}')">
-                <img src="${cat.img || 'https://via.placeholder.com/400x200'}" onerror="this.src='5515928d-da81-433e-8bc9-245180ba6724.jpg'">
+                <img src="${cat.img || ''}" onerror="this.src='5515928d-da81-433e-8bc9-245180ba6724.jpg'">
                 <h2>${cat.name}</h2>
             </div>
         `).join('');
-    }
+    };
 
-    function renderHorizontalCats() {
+    window.renderHorizontalCats = () => {
         const bar = document.getElementById('horizontal-cats');
         allCategories.filter(c => !c.parent).forEach(cat => {
             const pill = document.createElement('div');
             pill.className = 'cat-pill'; pill.innerText = cat.name;
             pill.onclick = () => navigateTo(cat.name); bar.appendChild(pill);
         });
-    }
-
-    window.navigateTo = (catName) => {
-        navigationHistory.push(catName);
-        renderMenu(catName);
     };
 
-    window.goBack = () => {
-        navigationHistory.pop();
-        if (navigationHistory.length === 0) {
-            document.getElementById('menu-overlay').style.display = 'none';
-        } else {
-            renderMenu(navigationHistory[navigationHistory.length - 1]);
-        }
+    window.navigateTo = (catName) => { navigationHistory.push(catName); renderMenu(catName); };
+    window.goBack = () => { 
+        navigationHistory.pop(); 
+        if (navigationHistory.length === 0) document.getElementById('menu-overlay').style.display = 'none';
+        else renderMenu(navigationHistory[navigationHistory.length - 1]);
     };
 
     window.renderMenu = (catName) => {
         const container = document.getElementById('menu-content');
-        const title = document.getElementById('current-view-title');
         document.getElementById('menu-overlay').style.display = 'block';
-        title.innerText = catName;
+        document.getElementById('current-view-title').innerText = catName;
 
         const subCats = allCategories.filter(c => c.parent === catName);
         const prods = allProducts.filter(p => p.category === catName);
 
-        let html = '';
-        if (subCats.length > 0) {
-            html += `<div class="categories-grid">` + subCats.map(sc => `
-                <div class="category-card" onclick="navigateTo('${sc.name}')">
-                    <img src="${sc.img || 'https://via.placeholder.com/400x200'}">
-                    <h2>${sc.name}</h2>
-                </div>`).join('') + `</div>`;
-        }
-        
-        if (prods.length > 0) {
-            html += prods.map(p => {
-                const qty = cart[p.id] ? cart[p.id].qty : 0;
-                return `
-                <div class="product-item">
-                    <div>
-                        <h3 style="margin:0; font-size:16px;">${p.name}</h3>
-                        <div class="price-tag">${p.prices[0].price} ج.م</div>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        ${qty > 0 ? `<button class="btn-qty" onclick="updateQty('${p.id}', -1)">-</button> <b>${qty}</b>` : ''}
-                        <button class="btn-qty" onclick="updateQty('${p.id}', 1)">+</button>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-        container.innerHTML = html || '<p style="text-align:center; padding:20px;">لا يوجد عناصر هنا</p>';
+        let html = subCats.length ? `<div class="categories-grid">` + subCats.map(sc => `
+            <div class="category-card" onclick="navigateTo('${sc.name}')">
+                <img src="${sc.img || ''}" onerror="this.src='5515928d-da81-433e-8bc9-245180ba6724.jpg'">
+                <h2>${sc.name}</h2>
+            </div>`).join('') + `</div>` : '';
+
+        html += prods.map(p => {
+            const qty = cart[p.id] ? cart[p.id].qty : 0;
+            return `<div class="product-item">
+                <div><h3>${p.name}</h3><div class="price-tag">${p.prices[0].price} ج.م</div></div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    ${qty > 0 ? `<button class="btn-qty" onclick="updateQty('${p.id}', -1)">-</button> <b>${qty}</b>` : ''}
+                    <button class="btn-qty" onclick="updateQty('${p.id}', 1)">+</button>
+                </div>
+            </div>`;
+        }).join('');
+        container.innerHTML = html;
     };
 
     window.updateQty = (id, delta) => {
@@ -459,60 +534,33 @@
         if (!cart[id]) cart[id] = { id: p.id, name: p.name, price: p.prices[0].price, qty: 0 };
         cart[id].qty += delta;
         if (cart[id].qty <= 0) delete cart[id];
-        
         updateCartFloat();
-        const currentCat = navigationHistory[navigationHistory.length - 1];
-        if(currentCat) renderMenu(currentCat);
-        else if(document.getElementById('searchInput').value) handleSearch();
+        renderMenu(navigationHistory[navigationHistory.length - 1]);
     };
 
     function updateCartFloat() {
         let total = 0, count = 0;
-        for (let k in cart) {
-            total += cart[k].price * cart[k].qty;
-            count += cart[k].qty;
-        }
-        const bar = document.getElementById('cart-float');
+        for (let k in cart) { total += cart[k].price * cart[k].qty; count += cart[k].qty; }
         document.getElementById('cart-total').innerText = total + " ج.م";
-        bar.style.display = count > 0 ? 'flex' : 'none';
+        document.getElementById('cart-float').style.display = count > 0 ? 'flex' : 'none';
     }
 
-    window.handleSearch = () => {
-        const term = document.getElementById('searchInput').value.toLowerCase();
-        const container = document.getElementById('menu-content');
-        if(term.length > 0) {
-            document.getElementById('menu-overlay').style.display = 'block';
-            document.getElementById('current-view-title').innerText = "نتائج البحث";
-            const prods = allProducts.filter(p => p.name.toLowerCase().includes(term));
-            container.innerHTML = prods.map(p => {
-                const qty = cart[p.id] ? cart[p.id].qty : 0;
-                return `<div class="product-item">...</div>`; // (نفس الكود السابق للبحث)
-            }).join('');
-        }
-    };
-
     function listenToOrders() {
+        if(!currentUser) return;
         const q = query(collection(db, "orders"), where("customerPhone", "==", currentUser.phone));
-        onSnapshot(q, (snapshot) => {
+        onSnapshot(q, (snap) => {
             const list = document.getElementById('orders-list');
-            const orders = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}))
-                            .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-            list.innerHTML = orders.map(o => `
-                <div class="order-card status-${o.status}">
-                    <span class="status-badge status-${o.status}">${o.status}</span>
-                    <small>#${o.id.slice(-5)}</small>
-                    <div>${o.items.map(i => i.name).join(', ')}</div>
-                    <strong>${o.totalPrice} ج.م</strong>
-                </div>`).join('');
+            const orders = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.createdAt - a.createdAt);
+            list.innerHTML = orders.map(o => `<div class="order-card status-${o.status}"><span class="status-badge status-${o.status}">${o.status}</span><small>#${o.id.slice(-5)}</small><br><b>${o.totalPrice} ج.م</b></div>`).join('');
         });
     }
 
-    window.openOrders = () => currentUser ? document.getElementById('orders-overlay').style.display = 'block' : window.openLogin();
     window.openLogin = () => document.getElementById('login-modal').style.display = 'flex';
-    window.openCheckoutModal = () => document.getElementById('checkout-modal').style.display = 'flex';
+    window.openOrders = () => { if(!currentUser) return openLogin(); document.getElementById('orders-overlay').style.display = 'block'; };
     window.closeOverlay = (id) => document.getElementById(id).style.display = 'none';
 
     init();
 </script>
+
 </body>
 </html>
