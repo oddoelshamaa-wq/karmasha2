@@ -326,6 +326,21 @@ body {
     height: 55px;
     font-size: 18px !important;
     box-shadow: 0 10px 20px rgba(210, 0, 10, 0.2);
+}.size-dropdown {
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-family: 'Cairo';
+    font-size: 12px;
+    background: #f9f9f9;
+    outline: none;
+    cursor: pointer;
+}
+
+.price-tag {
+    color: var(--main-red);
+    font-weight: 900;
+    font-size: 15px;
 }
     </style>
 </head>
@@ -669,12 +684,14 @@ body {
         else renderMenu(navigationHistory[navigationHistory.length - 1]);
     };
 
-    window.renderMenu = (catName) => {
+   window.renderMenu = (catName) => {
         const container = document.getElementById('menu-content');
         document.getElementById('menu-overlay').style.display = 'block';
         document.getElementById('current-view-title').innerText = catName;
+        
         const subCats = allCategories.filter(c => c.parent === catName);
         const prods = allProducts.filter(p => p.category === catName);
+        
         let html = '';
         if (subCats.length > 0) {
             html += `<div class="categories-grid">` + subCats.map(sc => `
@@ -683,24 +700,73 @@ body {
                     <h2>${sc.name}</h2>
                 </div>`).join('') + `</div>`;
         }
-        html += prods.map(p => `
-            <div class="product-item">
-                <button class="btn-qty" onclick="addToCartFromMenu('${p.id}')">+</button>
-                <div style="flex:1; text-align:right; padding-right:15px;">
-                    <h3 style="margin:0;">${p.name}</h3>
-                    <span style="color:red; font-weight:bold;">${p.prices[0].price} ج.م</span>
+
+        html += prods.map(p => {
+            const hasSizes = p.prices && p.prices.length > 1;
+            
+            let sizeSelector = '';
+            if (hasSizes) {
+                sizeSelector = `
+                    <select id="size-select-${p.id}" class="size-dropdown" onchange="updatePriceDisplay('${p.id}')">
+                        ${p.prices.map((pr, index) => {
+                            // هنا الحل: يبحث عن الاسم أو الحجم أو العنوان ليتجنب الـ undefined
+                            let sizeName = pr.name || pr.size || pr.title || pr.label || "حجم " + (index + 1);
+                            return `<option value="${index}">${sizeName}</option>`;
+                        }).join('')}
+                    </select>
+                `;
+            }
+
+            return `
+                <div class="product-item">
+                    <button class="btn-qty" onclick="addToCartFromMenu('${p.id}')">+</button>
+                    <div style="flex:1; text-align:right; padding-right:15px;">
+                        <h3 style="margin:0; font-size:16px;">${p.name}</h3>
+                        <div style="display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:5px;">
+                            <span id="price-tag-${p.id}" class="price-tag">${p.prices[0].price} ج.م</span>
+                            ${sizeSelector}
+                        </div>
+                    </div>
+                    <img src="${p.img || '5515928d-da81-433e-8bc9-245180ba6724.jpg'}" style="width:70px; height:70px; border-radius:12px; object-fit:cover;">
                 </div>
-                <img src="${p.img || '5515928d-da81-433e-8bc9-245180ba6724.jpg'}" style="width:60px; height:60px; border-radius:10px;">
-            </div>
-        `).join('');
+            `;
+        }).join('');
+        
         container.innerHTML = html;
     };
 
+    // وظيفة لتحديث السعر المعروض عند تغيير الحجم
+    window.updatePriceDisplay = (prodId) => {
+        const p = allProducts.find(x => x.id === prodId);
+        const select = document.getElementById(`size-select-${prodId}`);
+        const selectedIndex = select.value;
+        document.getElementById(`price-tag-${prodId}`).innerText = p.prices[selectedIndex].price + " ج.م";
+    };
     window.addToCartFromMenu = (prodId) => {
         const p = allProducts.find(x => x.id === prodId);
-        if(!cart[prodId]) cart[prodId] = { name: p.name, price: p.prices[0].price, qty: 0 };
-        cart[prodId].qty += 1;
+        const select = document.getElementById(`size-select-${prodId}`);
+        
+        // جلب السعر والحجم بناءً على الاختيار أو السعر الافتراضي الأول
+        const selectedIndex = select ? select.value : 0;
+        const selectedPriceObj = p.prices[selectedIndex];
+        
+        // مفتاح فريد للسلة يجمع بين ID المنتج والحجم (عشان العميل يقدر يضيف صغير وكبير من نفس النوع)
+        const cartKey = `${prodId}-${selectedIndex}`;
+
+        if(!cart[cartKey]) {
+            cart[cartKey] = { 
+                name: p.name + (p.prices.length > 1 ? ` (${selectedPriceObj.name})` : ''), 
+                price: selectedPriceObj.price, 
+                qty: 0 
+            };
+        }
+        cart[cartKey].qty += 1;
         updateCartFloat();
+        
+        // تأثير بصري خفيف عند الإضافة
+        const btn = event.currentTarget;
+        btn.innerHTML = "✓";
+        setTimeout(() => { btn.innerHTML = "+"; }, 500);
     };
 
     function updateCartFloat() {
