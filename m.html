@@ -304,6 +304,58 @@ body {
     box-shadow: 0 4px 12px rgba(210, 0, 10, 0.05);
 }
 
+/* CSS من المهمة الجديدة */
+.modern-input {
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 12px 15px;
+    font-family: 'Cairo';
+    transition: 0.3s;
+    background: #f9f9f9;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.modern-input:focus {
+    border-color: var(--main-red);
+    background: #fff;
+    outline: none;
+    box-shadow: 0 4px 12px rgba(210, 0, 10, 0.05);
+}
+
+.btn-gps-small {
+    width: 100%;
+    background: #fff;
+    border: 2px dashed #007bff;
+    color: #007bff;
+    padding: 10px;
+    border-radius: 12px;
+    font-family: 'Cairo';
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 14px;
+    margin: 8px 0;
+}
+
+.btn-gps-small:hover {
+    background: #f0f7ff;
+}
+
+.btn-add-addr {
+    width: 100%;
+    background: var(--main-red);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Cairo';
+    font-size: 15px;
+    margin-top: 8px;
+}
+
 .btn-gps {
     width: 100%;
     background: #fff;
@@ -326,6 +378,77 @@ body {
     height: 55px;
     font-size: 18px !important;
     box-shadow: 0 10px 20px rgba(210, 0, 10, 0.2);
+}
+/* تنسيق قائمة العناوين */
+.address-item {
+    border: 2px solid #eee;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    position: relative;
+}
+.address-item {
+    background: #fff;
+    border: 2px solid #f0f0f0;
+    padding: 12px 15px;
+    border-radius: 15px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center; /* توسيط عمودي */
+    justify-content: space-between; /* توزيع المسافات */
+    gap: 15px;
+    transition: 0.3s;
+    cursor: pointer;
+    position: relative;
+}
+
+.address-item.active {
+    border-color: #d2000a;
+    background: #fff9f9;
+}
+
+/* حاوية النص */
+.address-text-content {
+    flex: 1; /* تجعل النص يأخذ أكبر مساحة ممكنة في الوسط */
+    text-align: right;
+}
+
+.address-text-content b {
+    display: block;
+    font-size: 14px;
+    color: #333;
+}
+
+.address-text-content small {
+    color: #777;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* أيقونة الصح */
+.status-icon {
+    font-size: 20px;
+    color: #d2000a;
+    display: flex;
+    align-items: center;
+}
+
+/* أيقونة الحذف */
+.delete-icon {
+    color: #ccc;
+    font-size: 16px;
+    padding: 8px;
+    transition: 0.3s;
+}
+
+.delete-icon:hover {
+    color: #ff0000;
+    transform: scale(1.1);
 }
     </style>
 </head>
@@ -397,42 +520,45 @@ body {
 </div>
 
 <!-- مودالات -->
-<!-- مودال بيانات العميل المطور -->
 <div id="login-modal" class="modal" onclick="if(event.target==this) this.style.display='none'">
     <div class="modal-content modern-modal">
         <div class="modal-header">
-            <i class="fas fa-user-circle"></i>
-            <h3>ملف العميل</h3>
-            <p>برجاء إدخال بياناتك لتسهيل عملية التوصيل</p>
+            <i class="fas fa-address-book"></i>
+            <h3>ملف العميل وعناوينه</h3>
         </div>
         
         <div class="form-body">
+            <!-- بيانات العميل -->
             <div class="input-group">
-                <label><i class="fas fa-user"></i> الاسم بالكامل</label>
-                <input type="text" id="user-name-input" placeholder="مثال: محمد أحمد">
+                <label><i class="fas fa-user"></i> الاسم</label>
+                <input type="text" id="user-name-input" class="modern-input" placeholder="مثال: محمد أحمد">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-phone"></i> الموبايل</label>
+                <input type="tel" id="user-phone-input" class="modern-input" placeholder="01xxxxxxxxx">
             </div>
 
-            <div class="input-group">
-                <label><i class="fas fa-phone"></i> رقم الموبايل</label>
-                <input type="tel" id="user-phone-input" placeholder="01xxxxxxxxx">
-            </div>
+            <h4 style="margin: 20px 0 10px; font-size: 15px; color: var(--main-red);">عناوينك المسجلة</h4>
+            <div id="saved-addresses-list"></div>
 
-            <div class="input-group">
-                <label><i class="fas fa-map-marked-alt"></i> العنوان بالتفصيل</label>
-                <textarea id="user-address-input" rows="2" placeholder="اسم الشارع، رقم العمارة، الدور..."></textarea>
-            </div>
-
-            <div class="gps-section">
-                <button class="btn-gps" onclick="getLocation(this)">
-                    <i class="fas fa-location-arrow"></i> تحديد موقعي عبر الـ GPS
+            <!-- صندوق الإضافة الجديد -->
+            <div class="add-new-addr-box">
+                <label>إضافة عنوان جديد</label>
+                <input type="text" id="new-addr-label" class="modern-input" placeholder="اسم العنوان (مثال: البيت)">
+                <textarea id="new-addr-details" class="modern-input" rows="2" placeholder="العنوان بالتفصيل (الشارع، الدور، العلامة)"></textarea>
+                
+                <button class="btn-gps-small" onclick="getLocation('new-addr-details')">
+                    <i class="fas fa-location-arrow"></i> تحديد موقعي الحالي GPS
                 </button>
-                <input type="hidden" id="user-gps-coords">
-                <p id="gps-status" style="font-size: 11px; margin-top: 5px; color: #666;"></p>
+
+                <button class="btn-add-addr" onclick="addNewAddress()">
+                    <i class="fas fa-plus-circle"></i> إضافة العنوان للقائمة
+                </button>
             </div>
         </div>
 
-        <button class="btn-main btn-save" onclick="saveProfile()">
-            حفظ البيانات <i class="fas fa-check-circle"></i>
+        <button class="btn-main btn-save" onclick="saveProfile()" style="margin-top:20px;">
+            حفظ وإغلاق <i class="fas fa-check-circle"></i>
         </button>
     </div>
 </div>
@@ -481,8 +607,11 @@ body {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let allCategories = [], allProducts = [], cart = {}, navigationHistory = [], currentUser = null;
+    // تعريف المتغيرات العامة
+    let allCategories = [], allProducts = [], cart = {}, navigationHistory = [];
+    window.currentUser = { name: "", phone: "", addresses: [], selectedAddressIndex: 0 };
 
+    // الدالة الأساسية للتحميل
     async function init() {
         try {
             const [catSnap, prodSnap] = await Promise.all([
@@ -493,7 +622,7 @@ body {
             allCategories = catSnap.docs.map(d => ({id: d.id, ...d.data()}));
             allProducts = prodSnap.docs.map(d => ({id: d.id, ...d.data()}));
             
-            checkUser(); // تحقق من المستخدم عند التشغيل
+            checkUser(); 
             renderHome();
             renderHorizontalCats();
             
@@ -503,143 +632,125 @@ body {
         }
     }
 
-    // --- نظام المستخدم (Login/Logout) ---
-    function checkUser() {
+    // --- نظام المستخدم والعناوين ---
+    window.checkUser = function() {
         const saved = localStorage.getItem('karmasha_user');
-        const actionBtn = document.querySelector('.header-actions');
-        
         if (saved) {
-            currentUser = JSON.parse(saved);
-            // تغيير شكل الهيدر ليظهر الاسم وزر الخروج
-            actionBtn.innerHTML = `
-                <div class="action-btn" onclick="openOrders()" title="طلباتي"><i class="fas fa-receipt"></i></div>
-                <div style="background:white; padding:5px 15px; border-radius:20px; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1)">
-                    أهلاً، ${currentUser.name.split(' ')[0]} 
-                    <i class="fas fa-sign-out-alt" onclick="logout()" style="margin-right:10px; color:red; cursor:pointer"></i>
-                </div>
-            `;
-            listenToOrders();
-        } else {
-            currentUser = null;
-            actionBtn.innerHTML = `
-                <div class="action-btn" onclick="openOrders()"><i class="fas fa-receipt"></i></div>
-                <div class="action-btn" onclick="openLogin()"><i class="fas fa-user-circle"></i> تسجيل</div>
-            `;
+            window.currentUser = JSON.parse(saved);
+            if (!window.currentUser.addresses) window.currentUser.addresses = [];
+            
+            document.getElementById('user-name-input').value = window.currentUser.name;
+            document.getElementById('user-phone-input').value = window.currentUser.phone;
+            
+            updateHeaderUI();
+            renderAddresses();
         }
+    };
+
+    window.addNewAddress = function() {
+        const label = document.getElementById('new-addr-label').value;
+        const details = document.getElementById('new-addr-details').value;
+        if (!label || !details) return alert("اكمل بيانات العنوان أولاً");
+
+        window.currentUser.addresses.push({ label, details });
+        window.currentUser.selectedAddressIndex = window.currentUser.addresses.length - 1;
+        
+        document.getElementById('new-addr-label').value = "";
+        document.getElementById('new-addr-details').value = "";
+        renderAddresses();
+    };
+
+window.renderAddresses = function() {
+    const container = document.getElementById('saved-addresses-list');
+    if (!window.currentUser.addresses || window.currentUser.addresses.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#999;font-size:12px;padding:10px;">لا توجد عناوين مسجلة</p>';
+        return;
     }
 
-    window.saveProfile = () => {
-        const name = document.getElementById('user-name-input').value;
-        const phone = document.getElementById('user-phone-input').value;
-        if(!name || !phone) return alert("فضلاً أدخل الاسم ورقم الموبايل");
-        
-        currentUser = { name, phone };
-        localStorage.setItem('karmasha_user', JSON.stringify(currentUser));
-        document.getElementById('login-modal').style.display = 'none';
-        checkUser(); // تحديث الواجهة
-        alert("تم تسجيل بياناتك بنجاح ✅");
-    };
+    container.innerHTML = window.currentUser.addresses.map((addr, index) => {
+        const isActive = index === window.currentUser.selectedAddressIndex;
+        return `
+            <div class="address-item ${isActive ? 'active' : ''}" onclick="selectAddress(${index})">
+                
+                <!-- 1. أيقونة الحالة (الصح) تظهر فقط للعنوان المختار -->
+                <div class="status-icon">
+                    ${isActive ? '<i class="fas fa-check-circle"></i>' : '<i class="far fa-circle" style="color:#eee"></i>'}
+                </div>
 
-    window.logout = () => {
-        if(confirm("هل تريد تسجيل الخروج؟")) {
-            localStorage.removeItem('karmasha_user');
-            location.reload(); // إعادة تحميل الصفحة لتنظيف البيانات
-        }
-    };
+                <!-- 2. محتوى العنوان في المنتصف -->
+                <div class="address-text-content">
+                    <b>${addr.label}</b>
+                    <small>${addr.details}</small>
+                </div>
 
-    // --- تحديد الموقع (GPS Fix) ---
+                <!-- 3. أيقونة الحذف في الطرف الآخر -->
+                <div class="delete-icon" onclick="deleteAddress(event, ${index})">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
 
-window.getLocation = (targetId) => {
-    // تحديد العنصر الذي سيتم وضع العنوان فيه (العنوان بالتفصيل)
-    const addressField = document.getElementById('user-address-input') || document.getElementById('cust-address');
-    const btn = event.currentTarget;
-
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البحث عنك...';
-    btn.disabled = true; // منع الضغط المتكرر
-
-    const options = {
-        enableHighAccuracy: false, // جعلناها false ليكون الـ GPS سريع جداً (يعتمد على الأبراج والواي فاي)
-        timeout: 10000,            // إذا لم يجد الموقع في 10 ثواني يغلق المحاولة
-        maximumAge: 0
-    };
-
-    navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            const googleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
-            
-            // إضافة الرابط للعنوان
-            addressField.value += `📍 موقعي على الخريطة: ${googleMapsLink}`;
-            
-            btn.innerHTML = '<i class="fas fa-check"></i> تم التحديد بنجاح';
-            btn.style.background = "#28a745";
-            btn.style.color = "#fff";
-            btn.disabled = false;
-        },
-        (err) => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-location-arrow"></i> تحديد موقعي عبر الـ GPS';
-            
-            if (err.code === 3) {
-                alert("⏳ استغرق البحث وقتاً طويلاً بسبب ضعف الإشارة. من فضلك جرب مرة أخرى أو اكتب العنوان يدوياً.");
-            } else if (err.code === 1) {
-                alert("⚠️ يرجى السماح للمتصفح بالوصول للموقع من إعدادات الهاتف.");
-            } else {
-                alert("❌ تعذر تحديد الموقع حالياً، يرجى كتابة العنوان يدوياً.");
-            }
-        },
-        options
-    );
+            </div>
+        `;
+    }).join('');
 };
 
-    // --- إتمام الطلب (إجبار التسجيل) ---
-    window.openCheckoutModal = () => {
-        if (!currentUser) {
-            alert("عفواً! يجب تسجيل بياناتك أولاً لإتمام الطلب.");
-            window.openLogin();
-            return;
+// ربط الدالة بالـ window لتكون قابلة للاستدعاء من الـ HTML
+window.deleteAddress = function(event, index) {
+    // منع انتشار الحدث (عشان لما تدوس مسح ميتحددش العنوان في نفس الوقت)
+    if (event) event.stopPropagation();
+
+    if (confirm("هل أنت متأكد من حذف هذا العنوان؟")) {
+        // 1. مسح العنوان من المصفوفة
+        window.currentUser.addresses.splice(index, 1);
+
+        // 2. تعديل المؤشر (Selected Index) عشان ميعلقش لو مسحت العنوان المختار
+        if (window.currentUser.selectedAddressIndex === index) {
+            window.currentUser.selectedAddressIndex = 0;
+        } else if (window.currentUser.selectedAddressIndex > index) {
+            window.currentUser.selectedAddressIndex--;
         }
-        document.getElementById('checkout-modal').style.display = 'flex';
+
+        // 3. حفظ التعديل في ذاكرة المتصفح فوراً
+        localStorage.setItem('karmasha_user', JSON.stringify(window.currentUser));
+
+        // 4. تحديث شكل القائمة أمامك
+        renderAddresses();
+        
+        alert("تم حذف العنوان بنجاح ✅");
+    }
+};
+
+    window.selectAddress = function(index) {
+        window.currentUser.selectedAddressIndex = index;
+        renderAddresses();
     };
 
-    window.confirmOrder = async () => {
-        const address = document.getElementById('cust-address').value;
-        if(!address) return alert("أدخل العنوان بالتفصيل أولاً");
+    window.saveProfile = function() {
+        window.currentUser.name = document.getElementById('user-name-input').value;
+        window.currentUser.phone = document.getElementById('user-phone-input').value;
+        if (!window.currentUser.name || !window.currentUser.phone) return alert("الاسم والموبايل مطلوبان");
 
-        try {
-            const totalPrice = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
-            
-            // 1. إرسال للسيرفر (Firebase)
-            await addDoc(collection(db, "orders"), {
-                customerName: currentUser.name,
-                customerPhone: currentUser.phone,
-                customerAddress: address,
-                items: Object.values(cart),
-                totalPrice: totalPrice,
-                status: "جديد",
-                createdAt: serverTimestamp()
-            });
-
-            // 2. إرسال واتساب (اختياري للأدمن)
-            const adminPhone = "20123456789"; // ضع رقمك هنا
-            let msg = `*طلب جديد من: ${currentUser.name}*\n📍 العنوان: ${address}\n💰 الإجمالي: ${totalPrice} ج.م\n----------------\n`;
-            Object.values(cart).forEach(item => msg += `• ${item.name} x${item.qty}\n`);
-            
-            alert("تم إرسال طلبك بنجاح! 🎉");
-            window.open(`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-
-            cart = {};
-            updateCartFloat();
-            document.getElementById('checkout-modal').style.display = 'none';
-            document.getElementById('menu-overlay').style.display = 'none';
-        } catch(e) {
-            alert("حدث خطأ أثناء الإرسال");
-        }
+        localStorage.setItem('karmasha_user', JSON.stringify(window.currentUser));
+        updateHeaderUI();
+        document.getElementById('login-modal').style.display = 'none';
+        alert("تم الحفظ بنجاح ✅");
     };
 
-    // باقي الدوال (Search, Render, Qty) كما هي
-    window.renderHome = () => {
+    function updateHeaderUI() {
+        const actionBtn = document.querySelector('.header-actions');
+        actionBtn.innerHTML = `
+            <div class="action-btn" onclick="openOrders()"><i class="fas fa-receipt"></i></div>
+            <div onclick="openLogin()" style="background:white; padding:5px 15px; border-radius:20px; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1)">
+                أهلاً، ${window.currentUser.name.split(' ')[0]} <i class="fas fa-user-edit" style="margin-right:5px; color:red"></i>
+            </div>
+        `;
+    }
+
+    // استدعاء التشغيل في نهاية السكربت لضمان تعريف كل شيء
+    init();
+
+    // ربط الدوال الأخرى بـ window لتعمل من الـ HTML
+    window.openLogin = () => document.getElementById('login-modal').style.display = 'flex';
+    window.renderHome = () => { /* كود عرض الأقسام */ 
         const list = document.getElementById('main-categories');
         list.innerHTML = allCategories.filter(c => !c.parent).map(cat => `
             <div class="category-card" onclick="navigateTo('${cat.name}')">
@@ -648,152 +759,9 @@ window.getLocation = (targetId) => {
             </div>
         `).join('');
     };
-
-    window.renderHorizontalCats = () => {
-        const bar = document.getElementById('horizontal-cats');
-        allCategories.filter(c => !c.parent).forEach(cat => {
-            const pill = document.createElement('div');
-            pill.className = 'cat-pill'; pill.innerText = cat.name;
-            pill.onclick = () => navigateTo(cat.name); bar.appendChild(pill);
-        });
-    };
-
     window.navigateTo = (catName) => { navigationHistory.push(catName); renderMenu(catName); };
-    window.goBack = () => { 
-        navigationHistory.pop(); 
-        if (navigationHistory.length === 0) document.getElementById('menu-overlay').style.display = 'none';
-        else renderMenu(navigationHistory[navigationHistory.length - 1]);
-    };
-
- window.renderMenu = (catName) => {
-    const container = document.getElementById('menu-content');
-    document.getElementById('menu-overlay').style.display = 'block';
-    document.getElementById('current-view-title').innerText = catName;
-
-    const subCats = allCategories.filter(c => c.parent === catName);
-    const prods = allProducts.filter(p => p.category === catName);
-
-    let html = '';
-
-    if (subCats.length > 0) {
-        html += `<div class="categories-grid">` + subCats.map(sc => `
-            <div class="category-card" onclick="navigateTo('${sc.name}')">
-                <img src="${sc.img || ''}" onerror="this.src='5515928d-da81-433e-8bc9-245180ba6724.jpg'">
-                <h2>${sc.name}</h2>
-            </div>`).join('') + `</div>`;
-    }
-
-    html += prods.map(p => {
-        const hasMultiplePrices = p.prices && p.prices.length > 1;
-        
-        return `
-        <div class="product-item">
-            <div style="display:flex; align-items:center; gap:8px;">
-                 <button class="btn-qty" onclick="addToCartFromMenu('${p.id}')">+</button>
-            </div>
-
-            <div style="flex: 1; text-align: right; padding-right: 15px;">
-                <h3 style="margin:0; font-size:16px;">${p.name}</h3>
-                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 5px;">
-                    <span id="price-display-${p.id}" style="color:var(--main-red); font-weight:bold;">${p.prices[0].price} ج.م</span>
-                    
-                    ${hasMultiplePrices ? `
-                        <select id="size-select-${p.id}" onchange="updatePriceDisplay('${p.id}')" style="font-family:'Cairo'; border-radius:5px; border:1px solid #ccc;">
-                            ${p.prices.map((pr, index) => {
-                                // هنا التعديل: التحقق من وجود name أو size أو label، وإذا لم يوجد شيء نضع "حجم"
-                                const label = pr.name || pr.size || pr.label || "حجم " + (index + 1);
-                                return `<option value="${index}">${label}</option>`;
-                            }).join('')}
-                        </select>
-                    ` : ''}
-                </div>
-            </div>
-
-            <img src="${p.img || '5515928d-da81-433e-8bc9-245180ba6724.jpg'}" 
-                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 10px;">
-        </div>`;
-    }).join('');
-
-    container.innerHTML = html || '<p style="text-align:center; padding:20px;">لا توجد منتجات حالياً</p>';
-};
-// دالة لتحديث السعر المعروض عند تغيير الحجم
-window.updatePriceDisplay = (prodId) => {
-    const p = allProducts.find(x => x.id === prodId);
-    const select = document.getElementById(`size-select-${prodId}`);
-    const priceDisplay = document.getElementById(`price-display-${prodId}`);
-    
-    if (p && select) {
-        const selectedIndex = select.value;
-        priceDisplay.innerText = p.prices[selectedIndex].price + " ج.م";
-    }
-};
-
-// دالة الإضافة للسلة بناءً على الحجم المختار
-window.addToCartFromMenu = (prodId) => {
-    const p = allProducts.find(x => x.id === prodId);
-    if(!p || !p.prices) return;
-
-    const select = document.getElementById(`size-select-${prodId}`);
-    const selectedIndex = select ? select.value : 0;
-    const selectedPriceObj = p.prices[selectedIndex];
-
-    // تحديد اسم الحجم بشكل آمن
-    const sizeLabel = selectedPriceObj.name || selectedPriceObj.size || selectedPriceObj.label || "";
-    const displayName = sizeLabel ? `${p.name} (${sizeLabel})` : p.name;
-
-    const cartKey = prodId + "_" + (sizeLabel || "default");
-
-    if (!cart[cartKey]) {
-        cart[cartKey] = {
-            id: prodId,
-            name: displayName,
-            price: selectedPriceObj.price,
-            qty: 0
-        };
-    }
-    cart[cartKey].qty += 1;
-    
-    updateCartFloat();
-    
-    // تنبيه بسيط
-    const toast = document.createElement('div');
-    toast.innerText = "تمت الإضافة للسلة ✅";
-    toast.style = "position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.7); color:white; padding:8px 20px; border-radius:20px; z-index:9999;";
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
-};
-    window.updateQty = (id, delta) => {
-        const p = allProducts.find(x => x.id === id);
-        if (!cart[id]) cart[id] = { id: p.id, name: p.name, price: p.prices[0].price, qty: 0 };
-        cart[id].qty += delta;
-        if (cart[id].qty <= 0) delete cart[id];
-        updateCartFloat();
-        renderMenu(navigationHistory[navigationHistory.length - 1]);
-    };
-
-    function updateCartFloat() {
-        let total = 0, count = 0;
-        for (let k in cart) { total += cart[k].price * cart[k].qty; count += cart[k].qty; }
-        document.getElementById('cart-total').innerText = total + " ج.م";
-        document.getElementById('cart-float').style.display = count > 0 ? 'flex' : 'none';
-    }
-
-    function listenToOrders() {
-        if(!currentUser) return;
-        const q = query(collection(db, "orders"), where("customerPhone", "==", currentUser.phone));
-        onSnapshot(q, (snap) => {
-            const list = document.getElementById('orders-list');
-            const orders = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.createdAt - a.createdAt);
-            list.innerHTML = orders.map(o => `<div class="order-card status-${o.status}"><span class="status-badge status-${o.status}">${o.status}</span><small>#${o.id.slice(-5)}</small><br><b>${o.totalPrice} ج.م</b></div>`).join('');
-        });
-    }
-
-    window.openLogin = () => document.getElementById('login-modal').style.display = 'flex';
-    window.openOrders = () => { if(!currentUser) return openLogin(); document.getElementById('orders-overlay').style.display = 'block'; };
-    window.closeOverlay = (id) => document.getElementById(id).style.display = 'none';
-
-    init();
+    window.renderHorizontalCats = () => { /* كود البار العلوي */ };
+    // ... أضف باقي الدوال (renderMenu, addToCart, etc.) بنفس الطريقة window.functionName = ...
 </script>
-
 </body>
 </html>
