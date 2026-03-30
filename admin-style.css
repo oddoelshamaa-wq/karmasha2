@@ -314,6 +314,93 @@ th { background: #f5f5f5; font-weight: bold; }
 }
 .btn-delete-staff:hover { background: #d2000a; color: #fff; }
 
+/* Additional styles for complete staff management */
+.staff-inputs-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.card-title-row {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.perms-flex-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.perm-heading {
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.btn-save-full {
+    width: 100%;
+    background: linear-gradient(45deg, #d2000a, #e31e24);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-save-full:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(210,0,10,0.3);
+}
+
+.perm-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 14px;
+}
+
+.perm-label:hover {
+    border-color: #d2000a;
+    background: #fff8f8;
+}
+
+.perm-check {
+    accent-color: #d2000a;
+    width: 18px;
+    height: 18px;
+}
+
+.staff-list-table table thead th {
+    background: #f8f9fa;
+    color: #333;
+    padding: 15px;
+}
+
+.staff-list-table table tbody td {
+    padding: 15px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
 /* Reports Section Styles */
 .stats-grid {
     display: grid;
@@ -522,5 +609,42 @@ th { background: #f5f5f5; font-weight: bold; }
     font-size: 24px; 
     font-weight: 900; 
     color: #333; 
+}.accept-btn {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
 }
-admin-style.css
+
+.deliver-btn {
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.items-box {
+    font-size: 14px;
+    color: #d2000a;
+    margin: 10px 0;
+    font-weight: bold;
+    background: #fff1f1;
+    padding: 10px;
+    border-radius: 8px;
+    border-right: 4px solid #d2000a;
+}
