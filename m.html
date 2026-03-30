@@ -548,48 +548,33 @@ body {
     };
 
     // --- تحديد الموقع (GPS Fix) ---
-    window.getLocation = (targetId) => {
+
+window.getLocation = (targetId) => {
     const btn = event.currentTarget;
-    const statusText = document.getElementById('gps-status');
     const addressField = document.getElementById(targetId);
 
     if (navigator.geolocation) {
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تحديد موقعك...';
-        statusText.innerText = "برجاء الموافقة على إذن الوصول للموقع إذا ظهر لك";
-
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الطلب...';
+        
         navigator.geolocation.getCurrentPosition(
             (pos) => {
-                const lat = pos.coords.latitude;
-                const lon = pos.coords.longitude;
-                const googleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
-                
-                // إضافة الرابط في خانة العنوان
-                addressField.value += `\n📍 موقعي على الخريطة: ${googleMapsLink}`;
-                
-                btn.innerHTML = '<i class="fas fa-check"></i> تم تحديد الموقع بنجاح';
+                const googleMapsLink = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                addressField.value += `\n📍 موقعي: ${googleMapsLink}`;
+                btn.innerHTML = '<i class="fas fa-check"></i> تم التحديد';
                 btn.style.background = "#28a745";
-                btn.style.color = "#fff";
-                statusText.innerText = "تمت إضافة إحداثيات موقعك بنجاح ✅";
             },
             (err) => {
-                let errorMsg = "فشل تحديد الموقع";
-                if(err.code === 1) errorMsg = "يرجى تفعيل إذن الموقع (Permission Denied)";
-                else if(err.code === 2) errorMsg = "الموقع غير متاح حالياً";
-                
-                btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فشل التحديد';
-                btn.style.background = "#d2000a";
-                btn.style.color = "#fff";
-                statusText.innerText = errorMsg;
-                alert(errorMsg + " - يرجى كتابة العنوان يدوياً.");
+                if(err.code === 1) { // تم رفض الإذن
+                    alert("⚠️ تم رفض الوصول للموقع. يرجى تفعيل إذن الموقع للمتصفح من إعدادات الهاتف، أو كتابة العنوان يدوياً.");
+                } else {
+                    alert("❌ تعذر تحديد الموقع، يرجى كتابة العنوان يدوياً.");
+                }
+                btn.innerHTML = '<i class="fas fa-location-arrow"></i> حاول مرة أخرى';
             },
-            { 
-                enableHighAccuracy: true, 
-                timeout: 15000, 
-                maximumAge: 0 
-            }
+            { enableHighAccuracy: true, timeout: 10000 }
         );
     } else {
-        alert("متصفحك لا يدعم خاصية الـ GPS.");
+        alert("متصفحك لا يدعم الـ GPS");
     }
 };
 
