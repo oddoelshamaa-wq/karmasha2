@@ -550,32 +550,47 @@ body {
     // --- تحديد الموقع (GPS Fix) ---
 
 window.getLocation = (targetId) => {
+    // تحديد العنصر الذي سيتم وضع العنوان فيه (العنوان بالتفصيل)
+    const addressField = document.getElementById('user-address-input') || document.getElementById('cust-address');
     const btn = event.currentTarget;
-    const addressField = document.getElementById(targetId);
 
-    if (navigator.geolocation) {
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الطلب...';
-        
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const googleMapsLink = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                addressField.value += `\n📍 موقعي: ${googleMapsLink}`;
-                btn.innerHTML = '<i class="fas fa-check"></i> تم التحديد';
-                btn.style.background = "#28a745";
-            },
-            (err) => {
-                if(err.code === 1) { // تم رفض الإذن
-                    alert("⚠️ تم رفض الوصول للموقع. يرجى تفعيل إذن الموقع للمتصفح من إعدادات الهاتف، أو كتابة العنوان يدوياً.");
-                } else {
-                    alert("❌ تعذر تحديد الموقع، يرجى كتابة العنوان يدوياً.");
-                }
-                btn.innerHTML = '<i class="fas fa-location-arrow"></i> حاول مرة أخرى';
-            },
-            { enableHighAccuracy: true, timeout: 10000 }
-        );
-    } else {
-        alert("متصفحك لا يدعم الـ GPS");
-    }
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البحث عنك...';
+    btn.disabled = true; // منع الضغط المتكرر
+
+    const options = {
+        enableHighAccuracy: false, // جعلناها false ليكون الـ GPS سريع جداً (يعتمد على الأبراج والواي فاي)
+        timeout: 10000,            // إذا لم يجد الموقع في 10 ثواني يغلق المحاولة
+        maximumAge: 0
+    };
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            const googleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+            
+            // إضافة الرابط للعنوان
+            addressField.value += `📍 موقعي على الخريطة: ${googleMapsLink}`;
+            
+            btn.innerHTML = '<i class="fas fa-check"></i> تم التحديد بنجاح';
+            btn.style.background = "#28a745";
+            btn.style.color = "#fff";
+            btn.disabled = false;
+        },
+        (err) => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-location-arrow"></i> تحديد موقعي عبر الـ GPS';
+            
+            if (err.code === 3) {
+                alert("⏳ استغرق البحث وقتاً طويلاً بسبب ضعف الإشارة. من فضلك جرب مرة أخرى أو اكتب العنوان يدوياً.");
+            } else if (err.code === 1) {
+                alert("⚠️ يرجى السماح للمتصفح بالوصول للموقع من إعدادات الهاتف.");
+            } else {
+                alert("❌ تعذر تحديد الموقع حالياً، يرجى كتابة العنوان يدوياً.");
+            }
+        },
+        options
+    );
 };
 
     // --- إتمام الطلب (إجبار التسجيل) ---
