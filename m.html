@@ -304,58 +304,6 @@ body {
     box-shadow: 0 4px 12px rgba(210, 0, 10, 0.05);
 }
 
-/* CSS من المهمة الجديدة */
-.modern-input {
-    border: 2px solid #f0f0f0;
-    border-radius: 12px;
-    padding: 12px 15px;
-    font-family: 'Cairo';
-    transition: 0.3s;
-    background: #f9f9f9;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.modern-input:focus {
-    border-color: var(--main-red);
-    background: #fff;
-    outline: none;
-    box-shadow: 0 4px 12px rgba(210, 0, 10, 0.05);
-}
-
-.btn-gps-small {
-    width: 100%;
-    background: #fff;
-    border: 2px dashed #007bff;
-    color: #007bff;
-    padding: 10px;
-    border-radius: 12px;
-    font-family: 'Cairo';
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    font-size: 14px;
-    margin: 8px 0;
-}
-
-.btn-gps-small:hover {
-    background: #f0f7ff;
-}
-
-.btn-add-addr {
-    width: 100%;
-    background: var(--main-red);
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    font-family: 'Cairo';
-    font-size: 15px;
-    margin-top: 8px;
-}
-
 .btn-gps {
     width: 100%;
     background: #fff;
@@ -378,77 +326,6 @@ body {
     height: 55px;
     font-size: 18px !important;
     box-shadow: 0 10px 20px rgba(210, 0, 10, 0.2);
-}
-/* تنسيق قائمة العناوين */
-.address-item {
-    border: 2px solid #eee;
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: 0.3s;
-    position: relative;
-}
-.address-item {
-    background: #fff;
-    border: 2px solid #f0f0f0;
-    padding: 12px 15px;
-    border-radius: 15px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center; /* توسيط عمودي */
-    justify-content: space-between; /* توزيع المسافات */
-    gap: 15px;
-    transition: 0.3s;
-    cursor: pointer;
-    position: relative;
-}
-
-.address-item.active {
-    border-color: #d2000a;
-    background: #fff9f9;
-}
-
-/* حاوية النص */
-.address-text-content {
-    flex: 1; /* تجعل النص يأخذ أكبر مساحة ممكنة في الوسط */
-    text-align: right;
-}
-
-.address-text-content b {
-    display: block;
-    font-size: 14px;
-    color: #333;
-}
-
-.address-text-content small {
-    color: #777;
-    font-size: 11px;
-    line-height: 1.4;
-}
-
-/* أيقونة الصح */
-.status-icon {
-    font-size: 20px;
-    color: #d2000a;
-    display: flex;
-    align-items: center;
-}
-
-/* أيقونة الحذف */
-.delete-icon {
-    color: #ccc;
-    font-size: 16px;
-    padding: 8px;
-    transition: 0.3s;
-}
-
-.delete-icon:hover {
-    color: #ff0000;
-    transform: scale(1.1);
 }
     </style>
 </head>
@@ -520,86 +397,66 @@ body {
 </div>
 
 <!-- مودالات -->
+<!-- مودال بيانات العميل المطور -->
 <div id="login-modal" class="modal" onclick="if(event.target==this) this.style.display='none'">
     <div class="modal-content modern-modal">
         <div class="modal-header">
-            <i class="fas fa-address-book"></i>
-            <h3>ملف العميل وعناوينه</h3>
+            <i class="fas fa-user-circle"></i>
+            <h3>ملف العميل</h3>
+            <p id="profile-hint">أدخل رقم هاتفك للمتابعة</p>
         </div>
         
         <div class="form-body">
-            <!-- بيانات العميل -->
-            <div class="input-group">
-                <label><i class="fas fa-user"></i> الاسم</label>
-                <input type="text" id="user-name-input" class="modern-input" placeholder="مثال: محمد أحمد">
-            </div>
-            <div class="input-group">
-                <label><i class="fas fa-phone"></i> الموبايل</label>
-                <input type="tel" id="user-phone-input" class="modern-input" placeholder="01xxxxxxxxx">
+            <!-- خطوة 1: إدخال الرقم -->
+            <div id="phone-step">
+                <div class="input-group">
+                    <label><i class="fas fa-phone"></i> رقم الموبايل</label>
+                    <div style="display:flex; gap:5px;">
+                        <input type="tel" id="user-phone-input" placeholder="01xxxxxxxxx">
+                        <button class="btn-main" style="width:auto; padding:10px;" onclick="showUserChoices()">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <h4 style="margin: 20px 0 10px; font-size: 15px; color: var(--main-red);">عناوينك المسجلة</h4>
-            <div id="saved-addresses-list"></div>
+            <!-- خطوة 2: السؤال (جديد ولا مسجل) -->
+            <div id="choice-step" style="display:none; text-align:center; padding:10px 0;">
+                <p style="font-weight:bold; margin-bottom:15px;">أهلاً بك.. هل هذه أول مرة تطلب من "قرمشة"؟</p>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-main" style="background:#28a745;" onclick="handleUserPath('new')">أول مرة (جديد)</button>
+                    <button class="btn-main" style="background:#007bff;" onclick="handleUserPath('returning')">مسجل مسبقاً</button>
+                </div>
+                <button class="btn-gps" style="margin-top:15px; border:none; color:#888;" onclick="resetLogin()">تغيير الرقم</button>
+            </div>
 
-            <!-- صندوق الإضافة الجديد -->
-            <div class="add-new-addr-box">
-                <label>إضافة عنوان جديد</label>
-                <input type="text" id="new-addr-label" class="modern-input" placeholder="اسم العنوان (مثال: البيت)">
-                <textarea id="new-addr-details" class="modern-input" rows="2" placeholder="العنوان بالتفصيل (الشارع، الدور، العلامة)"></textarea>
+            <!-- خطوة 3: الفورم النهائي (الاسم والعناوين) -->
+            <div id="extended-profile" style="display:none;">
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> الاسم بالكامل</label>
+                    <input type="text" id="user-name-input" placeholder="مثال: محمد أحمد">
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-map-marker-alt"></i> عناوينك المسجلة</label>
+                    <div id="saved-addresses-list" style="margin-bottom:10px;"></div>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="new-address-input" placeholder="أضف عنوان جديد...">
+                        <button class="btn-main" style="width:auto; padding:10px; background:#28a745;" onclick="addNewAddressToList()"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
                 
-                <button class="btn-gps-small" onclick="getLocation('new-addr-details')">
-                    <i class="fas fa-location-arrow"></i> تحديد موقعي الحالي GPS
-                </button>
-
-                <button class="btn-add-addr" onclick="addNewAddress()">
-                    <i class="fas fa-plus-circle"></i> إضافة العنوان للقائمة
+                <button class="btn-main btn-save" style="margin-top:20px;" onclick="saveProfile()">
+                    حفظ البيانات والدخول <i class="fas fa-check-circle"></i>
                 </button>
             </div>
         </div>
-
-       <!-- زر تسجيل الخروج باللون الرمادي أو الشفاف -->
-<button onclick="logout()" style="width: 100%; background: none; border: 1px solid #ccc; color: #888; padding: 10px; border-radius: 12px; margin-top: 10px; font-family: 'Cairo'; cursor: pointer;">
-    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج ومسح البيانات
-</button>
-
-<!-- زر الحفظ الأساسي -->
-<button class="btn-main btn-save" onclick="saveProfile()" style="margin-top:10px;">
-    حفظ وإغلاق <i class="fas fa-check-circle"></i>
-</button>
     </div>
 </div>
-<!-- مودال إتمام الطلب - كان ناقصاً في الكود الأصلي -->
-<div id="checkout-modal" class="modal" onclick="if(event.target==this) this.style.display='none'">
-    <div class="modal-content modern-modal">
-        <div class="modal-header">
-            <i class="fas fa-shopping-bag" style="color: var(--main-red);"></i>
-            <h3>تأكيد الطلب</h3>
-            <p>راجع عنوانك لإتمام عملية التوصيل</p>
-        </div>
-        
-        <div class="form-body">
-            <div class="input-group">
-                <label><i class="fas fa-map-marker-alt"></i> عنوان التوصيل بالتفصيل</label>
-                <textarea id="cust-address" rows="3" placeholder="اسم الشارع، رقم العمارة، علامة مميزة..."></textarea>
-            </div>
-
-            <div class="gps-section">
-                <button class="btn-gps" onclick="getLocation('cust-address')">
-                    <i class="fas fa-location-arrow"></i> تحديد موقعي الحالي عبر الـ GPS
-                </button>
-                <p id="gps-status" style="font-size: 11px; margin-top: 5px; color: #666; text-align: center;"></p>
-            </div>
-        </div>
-
-        <button class="btn-main btn-save" onclick="confirmOrder()" style="margin-top: 20px;">
-            إرسال الطلب الآن <i class="fas fa-paper-plane"></i>
-        </button>
-    </div>
-</div>  
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, query, where, onSnapshot, serverTimestamp, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyClhjCiMrdiFP4oGYktlLKBHP2Rtbj9ezQ",
@@ -613,233 +470,189 @@ body {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // تعريف المتغيرات العامة
+    let currentUser = null;
+    let userAddresses = [];
     let allCategories = [], allProducts = [], cart = {}, navigationHistory = [];
-    let tempCoords = null;  // لتخزين الإحداثيات مؤقتاً
-    window.currentUser = { name: "", phone: "", addresses: [], selectedAddressIndex: 0 };
 
-    // وظيفة تحديد الموقع GPS المطورة
-    window.getLocation = async function(targetId) {
-        const txt = document.getElementById('gps-status'), 
-              addrInput = document.getElementById(targetId);
+    // --- 1. وظائف الدخول المتعدد الخطوات ---
 
-        // التأكد من وجود العناصر
-        if (!addrInput || !txt) return alert("خطأ في العناصر المطلوبة.");
-
-        // التأكد من أن المتصفح يدعم خاصية تحديد الموقع
-        if (!navigator.geolocation) return alert("متصفحك لا يدعم تحديد الموقع.");
-
-        txt.innerText = "جاري التحديد...";
-        txt.style.color = "#007bff";
-
-        // إضافة حالة التحميل للزر إن وجد
-        const gpsBtns = document.querySelectorAll('.btn-gps, .btn-gps-small');
-        gpsBtns.forEach(btn => btn.classList.add('loading'));
-
-        // طلب الإحداثيات من القمر الصناعي/الشبكة
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            const lat = pos.coords.latitude, 
-                  lon = pos.coords.longitude;
-            
-            // حفظ الإحداثيات في متغير مؤقت لاستخدامها لاحقاً
-            tempCoords = { lat, lng: lon };
-
-            try {
-                // استخدام API خارجي (OpenStreetMap) لتحويل الإحداثيات لعنوان نصي باللغة العربية
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&accept-language=ar`);
-                const data = await res.json();
-                
-                if (data && data.address) {
-                    const a = data.address;
-                    const building = a.house_number || "";
-                    const road = a.road || "";
-                    const suburb = a.suburb || a.city_district || "";
-                    
-                    // دمج البيانات في خانة العنوان
-                    addrInput.value = `${building ? 'عمارة '+building+'، ' : ''}${road}${suburb ? '، '+suburb : ''}`;
-                    txt.innerText = "تم التحديد ✅";
-                    txt.style.color = "#27ae60";
-                } else {
-                    // fallback: إحداثيات فقط
-                    addrInput.value = `إحداثيات: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-                    txt.innerText = "تم التحديد (إحداثيات فقط)";
-                    txt.style.color = "#f39c12";
-                }
-            } catch (e) { 
-                console.error("خطأ في تحويل العنوان:", e);
-                txt.innerText = "تم التحديد (إحداثيات فقط)"; 
-                txt.style.color = "#f39c12";
-                // fallback coords
-                addrInput.value = `إحداثيات: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-            }
-            
-            // إزالة حالة التحميل
-            gpsBtns.forEach(btn => btn.classList.remove('loading'));
-        }, (err) => { 
-            gpsBtns.forEach(btn => btn.classList.remove('loading'));
-            let msg = "فشل في تحديد الموقع. ";
-            switch(err.code) {
-                case err.PERMISSION_DENIED: msg += "تأكد من السماح بـ GPS."; break;
-                case err.POSITION_UNAVAILABLE: msg += "الموقع غير متاح."; break;
-                case err.TIMEOUT: msg += "انتهت مهلة التحديد."; break;
-            }
-            txt.innerText = msg;
-            txt.style.color = "#e74c3c";
-            alert(msg);
-        }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
+    window.showUserChoices = () => {
+        const phone = document.getElementById('user-phone-input').value;
+        if (!phone || phone.length < 11) return alert('أدخل رقم هاتف صحيح (11 رقم)');
+        
+        document.getElementById('phone-step').style.display = 'none';
+        document.getElementById('choice-step').style.display = 'block';
+        document.getElementById('profile-hint').innerText = 'خطوة التأكيد';
     };
 
-    // الدالة الأساسية للتحميل
+    window.handleUserPath = async (path) => {
+        const phone = document.getElementById('user-phone-input').value;
+        const choiceBtnArea = document.getElementById('choice-step');
+        
+        // إظهار لودر مؤقت
+        const originalContent = choiceBtnArea.innerHTML;
+        choiceBtnArea.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+
+        try {
+            const userDoc = await getDoc(doc(db, 'users', phone));
+            
+            if (path === 'returning') {
+                if (userDoc.exists()) {
+                    // العميل موجود فعلاً - جلب بياناته
+                    currentUser = userDoc.data();
+                    userAddresses = currentUser.addresses || [];
+                    document.getElementById('user-name-input').value = currentUser.name;
+                    
+                    // إظهار الفورم النهائي مع البيانات
+                    showFinalProfileForm(`أهلاً بعودتك يا ${currentUser.name}`);
+                } else {
+                    alert('هذا الرقم غير مسجل لدينا، من فضلك سجل كعميل جديد.');
+                    choiceBtnArea.innerHTML = originalContent;
+                    resetLogin();
+                }
+            } else {
+                // عميل جديد
+                if (userDoc.exists()) {
+                    alert('أنت مسجل لدينا بالفعل! سنقوم بفتح حسابك.');
+                    currentUser = userDoc.data();
+                    userAddresses = currentUser.addresses || [];
+                    document.getElementById('user-name-input').value = currentUser.name;
+                } else {
+                    document.getElementById('user-name-input').value = '';
+                    userAddresses = [];
+                }
+                showFinalProfileForm('سعداء بانضمامك إلينا');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('حدث خطأ في الاتصال بالقاعدة');
+            choiceBtnArea.innerHTML = originalContent;
+        }
+    };
+
+    function showFinalProfileForm(hint) {
+        document.getElementById('choice-step').style.display = 'none';
+        document.getElementById('extended-profile').style.display = 'block';
+        document.getElementById('profile-hint').innerText = hint;
+        populateAddresses();
+    }
+
+    window.resetLogin = () => {
+        document.getElementById('phone-step').style.display = 'block';
+        document.getElementById('choice-step').style.display = 'none';
+        document.getElementById('extended-profile').style.display = 'none';
+        document.getElementById('profile-hint').innerText = 'أدخل رقم هاتفك للمتابعة';
+    };
+
+    // --- 2. إدارة العناوين والحفظ ---
+
+    window.addNewAddressToList = () => {
+        const addr = document.getElementById('new-address-input').value.trim();
+        if (!addr) return alert('أدخل عنواناً صحيحاً');
+        userAddresses.push(addr);
+        document.getElementById('new-address-input').value = '';
+        populateAddresses();
+    };
+
+    window.removeAddress = (index) => {
+        userAddresses.splice(index, 1);
+        populateAddresses();
+    };
+
+    function populateAddresses() {
+        const list = document.getElementById('saved-addresses-list');
+        if (userAddresses.length === 0) {
+            list.innerHTML = '<p style="color:#888; font-size:12px;">لا توجد عناوين، أضف عنواناً واحداً على الأقل</p>';
+            return;
+        }
+        list.innerHTML = userAddresses.map((addr, i) => `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#f0f0f0; padding:8px; border-radius:8px; margin-bottom:5px; font-size:13px;">
+                <span>📍 ${addr}</span>
+                <i class="fas fa-times" style="color:red; cursor:pointer;" onclick="removeAddress(${i})"></i>
+            </div>
+        `).join('');
+    }
+
+    // حفظ البيانات في Firebase وجعلها دائمة
+    window.saveProfile = async () => {
+        const name = document.getElementById('user-name-input').value.trim();
+        const phone = document.getElementById('user-phone-input').value.trim();
+
+        if (!name || userAddresses.length === 0) {
+            return alert("من فضلك أكمل الاسم وأضف عنواناً واحداً على الأقل");
+        }
+
+        const userData = {
+            name: name,
+            phone: phone,
+            addresses: userAddresses,
+            updatedAt: serverTimestamp()
+        };
+
+        try {
+            // حفظ في Firebase (مفتاح البحث هو رقم الموبايل)
+            await setDoc(doc(db, "users", phone), userData);
+            
+            // حفظ في المتصفح (عشان يفضل عامل دخول)
+            localStorage.setItem('karmasha_user', JSON.stringify(userData));
+            currentUser = userData;
+            
+            checkUser(); // تحديث شكل الهيدر
+            document.getElementById('login-modal').style.display = 'none';
+            alert("تم حفظ بياناتك بنجاح ✅");
+        } catch (e) {
+            alert("خطأ أثناء الحفظ في القاعدة");
+        }
+    };
+
+    // --- 3. بقية وظائف السيستم (Orders, Menu, Cart) ---
+
+    function checkUser() {
+        const saved = localStorage.getItem('karmasha_user');
+        const actionBtn = document.querySelector('.header-actions');
+        
+        if (saved) {
+            currentUser = JSON.parse(saved);
+            actionBtn.innerHTML = `
+                <div class="action-btn" onclick="openOrders()"><i class="fas fa-receipt"></i></div>
+                <div style="background:white; padding:5px 15px; border-radius:20px; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1)">
+                    أهلاً، ${currentUser.name.split(' ')[0]} 
+                    <i class="fas fa-sign-out-alt" onclick="logout()" style="margin-right:10px; color:red; cursor:pointer"></i>
+                </div>
+            `;
+            listenToOrders();
+        } else {
+            currentUser = null;
+            actionBtn.innerHTML = `
+                <div class="action-btn" onclick="openOrders()"><i class="fas fa-receipt"></i></div>
+                <div class="action-btn" onclick="openLogin()"><i class="fas fa-user-circle"></i></div>
+            `;
+        }
+    }
+
+    window.logout = () => {
+        if(confirm("هل تريد تسجيل الخروج؟")) {
+            localStorage.removeItem('karmasha_user');
+            location.reload();
+        }
+    };
+
     async function init() {
         try {
             const [catSnap, prodSnap] = await Promise.all([
                 getDocs(collection(db, "categories")),
                 getDocs(collection(db, "products"))
             ]);
-            
             allCategories = catSnap.docs.map(d => ({id: d.id, ...d.data()}));
             allProducts = prodSnap.docs.map(d => ({id: d.id, ...d.data()}));
-            
-            checkUser(); 
+            checkUser();
             renderHome();
-            renderHorizontalCats();
-            
             document.body.classList.add('loaded');
-        } catch (e) {
-            console.error("Error loading data:", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
-    // --- نظام المستخدم والعناوين ---
-    window.checkUser = function() {
-        const saved = localStorage.getItem('karmasha_user');
-        if (saved) {
-            window.currentUser = JSON.parse(saved);
-            if (!window.currentUser.addresses) window.currentUser.addresses = [];
-            
-            document.getElementById('user-name-input').value = window.currentUser.name;
-            document.getElementById('user-phone-input').value = window.currentUser.phone;
-            
-            updateHeaderUI();
-            renderAddresses();
-        }
-    };
-
-    // دالة تسجيل الخروج - المهمة الجديدة
-    window.logout = function() {
-        if (confirm("هل أنت متأكد من تسجيل الخروج؟ سيتم مسح اسمك وعناوينك المسجلة من هذا الجهاز.")) {
-            // 1. مسح البيانات من ذاكرة المتصفح
-            localStorage.removeItem('karmasha_user');
-            
-            // 2. إعادة تحميل الصفحة لتصفير كل شيء
-            location.reload();
-        }
-    };
-
-    window.addNewAddress = function() {
-        const label = document.getElementById('new-addr-label').value;
-        const details = document.getElementById('new-addr-details').value;
-        if (!label || !details) return alert("اكمل بيانات العنوان أولاً");
-
-        window.currentUser.addresses.push({ label, details });
-        window.currentUser.selectedAddressIndex = window.currentUser.addresses.length - 1;
-        
-        document.getElementById('new-addr-label').value = "";
-        document.getElementById('new-addr-details').value = "";
-        renderAddresses();
-    };
-
-window.renderAddresses = function() {
-    const container = document.getElementById('saved-addresses-list');
-    if (!window.currentUser.addresses || window.currentUser.addresses.length === 0) {
-        container.innerHTML = '<p style="text-align:center;color:#999;font-size:12px;padding:10px;">لا توجد عناوين مسجلة</p>';
-        return;
-    }
-
-    container.innerHTML = window.currentUser.addresses.map((addr, index) => {
-        const isActive = index === window.currentUser.selectedAddressIndex;
-        return `
-            <div class="address-item ${isActive ? 'active' : ''}" onclick="selectAddress(${index})">
-                
-                <!-- 1. أيقونة الحالة (الصح) تظهر فقط للعنوان المختار -->
-                <div class="status-icon">
-                    ${isActive ? '<i class="fas fa-check-circle"></i>' : '<i class="far fa-circle" style="color:#eee"></i>'}
-                </div>
-
-                <!-- 2. محتوى العنوان في المنتصف -->
-                <div class="address-text-content">
-                    <b>${addr.label}</b>
-                    <small>${addr.details}</small>
-                </div>
-
-                <!-- 3. أيقونة الحذف في الطرف الآخر -->
-                <div class="delete-icon" onclick="deleteAddress(event, ${index})">
-                    <i class="fas fa-trash-alt"></i>
-                </div>
-
-            </div>
-        `;
-    }).join('');
-};
-
-// ربط الدالة بالـ window لتكون قابلة للاستدعاء من الـ HTML
-window.deleteAddress = function(event, index) {
-    // منع انتشار الحدث (عشان لما تدوس مسح ميتحددش العنوان في نفس الوقت)
-    if (event) event.stopPropagation();
-
-    if (confirm("هل أنت متأكد من حذف هذا العنوان؟")) {
-        // 1. مسح العنوان من المصفوفة
-        window.currentUser.addresses.splice(index, 1);
-
-        // 2. تعديل المؤشر (Selected Index) عشان ميعلقش لو مسحت العنوان المختار
-        if (window.currentUser.selectedAddressIndex === index) {
-            window.currentUser.selectedAddressIndex = 0;
-        } else if (window.currentUser.selectedAddressIndex > index) {
-            window.currentUser.selectedAddressIndex--;
-        }
-
-        // 3. حفظ التعديل في ذاكرة المتصفح فوراً
-        localStorage.setItem('karmasha_user', JSON.stringify(window.currentUser));
-
-        // 4. تحديث شكل القائمة أمامك
-        renderAddresses();
-        
-        alert("تم حذف العنوان بنجاح ✅");
-    }
-};
-
-    window.selectAddress = function(index) {
-        window.currentUser.selectedAddressIndex = index;
-        renderAddresses();
-    };
-
-    window.saveProfile = function() {
-        window.currentUser.name = document.getElementById('user-name-input').value;
-        window.currentUser.phone = document.getElementById('user-phone-input').value;
-        if (!window.currentUser.name || !window.currentUser.phone) return alert("الاسم والموبايل مطلوبان");
-
-        localStorage.setItem('karmasha_user', JSON.stringify(window.currentUser));
-        updateHeaderUI();
-        document.getElementById('login-modal').style.display = 'none';
-        alert("تم الحفظ بنجاح ✅");
-    };
-function updateHeaderUI() {
-    const actionBtn = document.querySelector('.header-actions');
-    actionBtn.innerHTML = `
-        <div class="action-btn" onclick="openOrders()"><i class="fas fa-receipt"></i></div>
-        <div style="background:white; padding:5px 15px; border-radius:20px; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1); display:flex; align-items:center; gap:10px;">
-            <span onclick="openLogin()" style="cursor:pointer">أهلاً، ${window.currentUser.name.split(' ')[0]}</span>
-            <i class="fas fa-sign-out-alt" onclick="logout()" style="color:red; cursor:pointer" title="خروج"></i>
-        </div>
-    `;
-}
-
-    // استدعاء التشغيل في نهاية السكربت لضمان تعريف كل شيء
-    init();
-
-    // ربط الدوال الأخرى بـ window لتعمل من الـ HTML
-    window.openLogin = () => document.getElementById('login-modal').style.display = 'flex';
-    window.renderHome = () => { /* كود عرض الأقسام */ 
+    // --- دوال العرض والبحث (مختصرة للتركيز على طلبك) ---
+    window.renderHome = () => {
         const list = document.getElementById('main-categories');
         list.innerHTML = allCategories.filter(c => !c.parent).map(cat => `
             <div class="category-card" onclick="navigateTo('${cat.name}')">
@@ -848,9 +661,118 @@ function updateHeaderUI() {
             </div>
         `).join('');
     };
+
     window.navigateTo = (catName) => { navigationHistory.push(catName); renderMenu(catName); };
-    window.renderHorizontalCats = () => { /* كود البار العلوي */ };
-    // ... أضف باقي الدوال (renderMenu, addToCart, etc.) بنفس الطريقة window.functionName = ...
+    window.goBack = () => { 
+        navigationHistory.pop(); 
+        if (navigationHistory.length === 0) document.getElementById('menu-overlay').style.display = 'none';
+        else renderMenu(navigationHistory[navigationHistory.length - 1]);
+    };
+
+    window.renderMenu = (catName) => {
+        const container = document.getElementById('menu-content');
+        document.getElementById('menu-overlay').style.display = 'block';
+        document.getElementById('current-view-title').innerText = catName;
+        const subCats = allCategories.filter(c => c.parent === catName);
+        const prods = allProducts.filter(p => p.category === catName);
+        let html = '';
+        if (subCats.length > 0) {
+            html += `<div class="categories-grid">` + subCats.map(sc => `
+                <div class="category-card" onclick="navigateTo('${sc.name}')">
+                    <img src="${sc.img || ''}" onerror="this.src='5515928d-da81-433e-8bc9-245180ba6724.jpg'">
+                    <h2>${sc.name}</h2>
+                </div>`).join('') + `</div>`;
+        }
+        html += prods.map(p => `
+            <div class="product-item">
+                <button class="btn-qty" onclick="addToCartFromMenu('${p.id}')">+</button>
+                <div style="flex:1; text-align:right; padding-right:15px;">
+                    <h3 style="margin:0;">${p.name}</h3>
+                    <span style="color:red; font-weight:bold;">${p.prices[0].price} ج.م</span>
+                </div>
+                <img src="${p.img || '5515928d-da81-433e-8bc9-245180ba6724.jpg'}" style="width:60px; height:60px; border-radius:10px;">
+            </div>
+        `).join('');
+        container.innerHTML = html;
+    };
+
+    window.addToCartFromMenu = (prodId) => {
+        const p = allProducts.find(x => x.id === prodId);
+        if(!cart[prodId]) cart[prodId] = { name: p.name, price: p.prices[0].price, qty: 0 };
+        cart[prodId].qty += 1;
+        updateCartFloat();
+    };
+
+    function updateCartFloat() {
+        let total = 0, count = 0;
+        for (let k in cart) { total += cart[k].price * cart[k].qty; count += cart[k].qty; }
+        document.getElementById('cart-total').innerText = total + " ج.م";
+        document.getElementById('cart-float').style.display = count > 0 ? 'flex' : 'none';
+    }
+
+    window.openCheckoutModal = () => {
+        if (!currentUser) { alert("سجل بياناتك أولاً"); openLogin(); return; }
+        
+        // إنشاء مودال اختيار العنوان عند الدفع
+        let addrOptions = currentUser.addresses.map((a, i) => `
+            <label style="display:block; padding:10px; border:1px solid #ddd; margin-bottom:10px; border-radius:10px;">
+                <input type="radio" name="order_addr" value="${a}" ${i===0?'checked':''}> ${a}
+            </label>
+        `).join('');
+
+        const modalHtml = `
+            <div class="modal-content modern-modal">
+                <h3>إتمام الطلب</h3>
+                <p>اختر عنوان التوصيل:</p>
+                ${addrOptions}
+                <button class="btn-main" onclick="confirmOrder()">تأكيد الطلب</button>
+                <button class="btn-gps" onclick="document.getElementById('checkout-modal').style.display='none'" style="margin-top:10px; border:none;">إلغاء</button>
+            </div>
+        `;
+        let m = document.getElementById('checkout-modal');
+        if(!m) { m = document.createElement('div'); m.id = 'checkout-modal'; m.className = 'modal'; document.body.appendChild(m); }
+        m.innerHTML = modalHtml;
+        m.style.display = 'flex';
+    };
+
+    window.confirmOrder = async () => {
+        const addr = document.querySelector('input[name="order_addr"]:checked').value;
+        const total = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
+        await addDoc(collection(db, "orders"), {
+            customerName: currentUser.name,
+            customerPhone: currentUser.phone,
+            customerAddress: addr,
+            items: Object.values(cart),
+            totalPrice: total,
+            status: "جديد",
+            createdAt: serverTimestamp()
+        });
+        alert("تم استلام طلبك! 🎉");
+        cart = {}; updateCartFloat();
+        document.getElementById('checkout-modal').style.display = 'none';
+        document.getElementById('menu-overlay').style.display = 'none';
+    };
+
+    function listenToOrders() {
+        const q = query(collection(db, "orders"), where("customerPhone", "==", currentUser.phone));
+        onSnapshot(q, (snap) => {
+            const list = document.getElementById('orders-list');
+            list.innerHTML = snap.docs.map(d => {
+                const o = d.data();
+                return `<div class="order-card"><b>#${d.id.slice(-5)}</b> - ${o.totalPrice} ج.م <span class="status-badge status-${o.status}">${o.status}</span></div>`;
+            }).join('');
+        });
+    }
+
+    window.openLogin = () => {
+        resetLogin();
+        document.getElementById('login-modal').style.display = 'flex';
+    }
+    window.openOrders = () => { if(!currentUser) return openLogin(); document.getElementById('orders-overlay').style.display = 'block'; };
+    window.closeOverlay = (id) => document.getElementById(id).style.display = 'none';
+
+    init();
 </script>
+
 </body>
 </html>
