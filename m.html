@@ -415,11 +415,20 @@ body {
 .status-تم { background: #d4edda; color: #155724; }
 .status-ملغي { background: #f8d7da; color: #721c24; }
 
+/* منع التداخل عند فتح السلة */
+body.cart-open {
+    overflow: hidden;
+}
+
+body.cart-open .cart-float {
+    display: none !important;
+}
+
 .order-items-summary {
     font-size: 13px;
     color: #666;
     margin-top: 5px;
-}
+} 
     </style>
 </head>
 <body>
@@ -484,7 +493,27 @@ body {
     <div id="orders-list"></div>
 </div>
 
-<div class="cart-float" id="cart-float" onclick="openCheckoutModal()">
+<!-- صفحة عرض السلة -->
+<div id="cart-overlay" class="overlay-page">
+    <div class="overlay-header">
+        <i class="fas fa-arrow-right" onclick="closeOverlay('cart-overlay')"></i>
+        <h2 style="margin:0; font-size:18px;">سلة المشتريات</h2>
+    </div>
+    <div id="cart-items-content" style="padding-bottom: 100px;">
+        <!-- هنا ستظهر الأصناف -->
+    </div>
+    
+    <!-- فوتر السلة الثابت -->
+    <div style="position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; box-sizing: border-box; border-top: 1px solid #eee; z-index: 100;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 900; font-size: 18px;">
+            <span>الإجمالي المستحق:</span>
+            <span id="cart-page-total">0 ج.م</span>
+        </div>
+        <button class="btn-main" onclick="openCheckoutModal()">متابعة إتمام الطلب</button>
+    </div>
+</div>
+
+<div class="cart-float" id="cart-float" onclick="openCartOverlay()">
     <span>إتمام الطلب <i class="fas fa-shopping-basket"></i></span>
     <span id="cart-total">0 ج.م</span>
 </div>
@@ -537,6 +566,17 @@ body {
                         <input type="text" id="new-address-input" placeholder="أضف عنوان جديد...">
                         <button class="btn-main" style="width:auto; padding:10px; background:#28a745;" onclick="addNewAddressToList()"><i class="fas fa-plus"></i></button>
                     </div>
+                </div>
+
+                <!-- حقل نوع العميل الجديد لتحديد الادمان -->
+                <div class="input-group">
+                    <label><i class="fas fa-user-tag"></i> نوع حسابك <small style="color:#888;">(للإدارة الداخلية)</small></label>
+                    <label style="display:flex; align-items:center; gap:10px; font-weight:normal; cursor:pointer;">
+                        <input type="radio" name="customerType" value="normal" checked> عميل عادي ✅
+                    </label>
+                    <label style="display:flex; align-items:center; gap:10px; font-weight:normal; cursor:pointer; color:#f44336;">
+                        <input type="radio" name="customerType" value="addict"> عميل متكرر/إدمان 🚫
+                    </label>
                 </div>
                 
                 <button class="btn-main btn-save" style="margin-top:20px;" onclick="saveProfile()">
@@ -708,9 +748,9 @@ body {
             currentUser = JSON.parse(saved);
             actionBtn.innerHTML = `
                 <div class="action-btn" onclick="openOrders()"><i class="fas fa-receipt"></i></div>
-                <div style="background:white; padding:5px 15px; border-radius:20px; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1)">
+                <div onclick="openProfile()" style="background:white; padding:5px 15px; border-radius:20px; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer">
                     أهلاً، ${currentUser.name.split(' ')[0]} 
-                    <i class="fas fa-sign-out-alt" onclick="logout()" style="margin-right:10px; color:red; cursor:pointer"></i>
+                    <i class="fas fa-user-edit" style="margin-right:5px; color:var(--main-red)"></i>
                 </div>
             `;
             listenToOrders();
@@ -728,6 +768,25 @@ body {
             localStorage.removeItem('karmasha_user');
             location.reload();
         }
+    };
+
+    // أضف هذه الدالة الجديدة
+    window.openProfile = () => {
+        if(!currentUser) return openLogin();
+        
+        // تعبئة الحقول بالبيانات الحالية
+        document.getElementById('user-phone-input').value = currentUser.phone;
+        document.getElementById('user-name-input').value = currentUser.name;
+        userAddresses = currentUser.addresses || [];
+        
+        // الانتقال مباشرة لخطوة تعديل البيانات
+        document.getElementById('phone-step').style.display = 'none';
+        document.getElementById('choice-step').style.display = 'none';
+        document.getElementById('extended-profile').style.display = 'block';
+        document.getElementById('profile-hint').innerText = 'تعديل بياناتك الشخصية';
+        
+        populateAddresses();
+        document.getElementById('login-modal').style.display = 'flex';
     };
 
     async function init() {
@@ -823,41 +882,187 @@ body {
     window.addToCartFromMenu = (prodId) => {
         const p = allProducts.find(x => x.id === prodId);
         const select = document.getElementById(`size-select-${prodId}`);
-        
-        // جلب السعر والحجم بناءً على الاختيار أو السعر الافتراضي الأول
         const selectedIndex = select ? select.value : 0;
         const selectedPriceObj = p.prices[selectedIndex];
         
-        // مفتاح فريد للسلة يجمع بين ID المنتج والحجم (عشان العميل يقدر يضيف صغير وكبير من نفس النوع)
+        // حل مشكلة الـ undefined: بنجرب نجيب الاسم من كذا مكان
+        const sizeName = selectedPriceObj.name || selectedPriceObj.size || selectedPriceObj.label || "";
         const cartKey = `${prodId}-${selectedIndex}`;
 
         if(!cart[cartKey]) {
             cart[cartKey] = { 
-                name: p.name + (p.prices.length > 1 ? ` (${selectedPriceObj.name})` : ''), 
-                price: selectedPriceObj.price, 
+                name: p.name + (sizeName ? ` (${sizeName})` : ''), 
+                price: Number(selectedPriceObj.price), 
                 qty: 0 
             };
         }
         cart[cartKey].qty += 1;
         updateCartFloat();
         
-        // تأثير بصري خفيف عند الإضافة
         const btn = event.currentTarget;
         btn.innerHTML = "✓";
         setTimeout(() => { btn.innerHTML = "+"; }, 500);
     };
 
-    function updateCartFloat() {
-        let total = 0, count = 0;
-        for (let k in cart) { total += cart[k].price * cart[k].qty; count += cart[k].qty; }
-        document.getElementById('cart-total').innerText = total + " ج.م";
-        document.getElementById('cart-float').style.display = count > 0 ? 'flex' : 'none';
-    }
+    // ========== وظائف إدارة السلة الجديدة ==========
+    
+    // 1. دالة لحساب إجمالي السلة (كانت ناقصة)
+    window.calculateCartTotal = () => {
+        let total = 0;
+        for (let key in cart) {
+            total += cart[key].price * cart[key].qty;
+        }
+        return total;
+    };
+    
+    window.openCartOverlay = () => {
+        renderCartPage();
+        document.getElementById('cart-overlay').style.display = 'block';
+    };
+
+    window.renderCartPage = () => {
+        const container = document.getElementById('cart-items-content');
+        const totalEl = document.getElementById('cart-page-total');
+        
+        if (Object.keys(cart).length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:80px 20px; color:#888;">
+                    <i class="fas fa-shopping-basket" style="font-size:80px; display:block; margin-bottom:20px; opacity:0.5;"></i>
+                    <h3 style="font-size:20px; margin-bottom:10px;">سلتك فارغة</h3>
+                    <p style="font-size:14px;">ابدأ بإضافة وجبات من القائمة</p>
+                </div>
+            `;
+            totalEl.textContent = '0 ج.م';
+            return;
+        }
+        
+        container.innerHTML = Object.entries(cart).map(([key, item]) => {
+            const [prodId] = key.split('-');
+            const product = allProducts.find(p => p.id === prodId);
+            return `
+                <div class="product-item">
+                    <img src="${product?.img || '5515928d-da81-433e-8bc9-245180ba6724.jpg'}" 
+                         style="width:80px; height:80px; border-radius:15px; object-fit:cover;">
+                    <div style="flex:1; padding:0 20px; text-align:right;">
+                        <h3 style="margin:0 0 8px 0; font-size:16px; font-weight:700;">${item.name}</h3>
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                            <span class="price-tag">${item.price} ج.م</span>
+                            <div style="display:flex; align-items:center; gap:8px; background:#f8f9fa; padding:6px 12px; border-radius:25px;">
+                                <button class="btn-qty" onclick="updateCartItem('${key}', ${item.qty-1})" style="background:#dc3545;">-</button>
+                                <span style="min-width:30px; text-align:center; font-weight:900; font-size:16px;">${item.qty}</span>
+                                <button class="btn-qty" onclick="updateCartItem('${key}', ${item.qty+1})">+</button>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <span style="font-size:14px; color:#666;">${(item.price * item.qty).toFixed(1)} ج.م</span>
+                            <button onclick="removeFromCart('${key}')" 
+                                    style="background:#dc3545; color:white; border:none; border-radius:8px; padding:8px 16px; font-size:13px; font-weight:500;">
+                                <i class="fas fa-trash"></i> حذف
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        totalEl.textContent = calculateCartTotal(cart) + ' ج.م';
+    };
+
+    window.updateCartItem = (key, newQty) => {
+        if (newQty <= 0) {
+            delete cart[key];
+        } else {
+            cart[key].qty = newQty;
+        }
+        updateCartFloat();
+        renderCartPage();
+    };
+
+    window.removeFromCart = (key) => {
+        if (confirm('هل تريد حذف هذا الصنف من السلة؟')) {
+            delete cart[key];
+            updateCartFloat();
+            renderCartPage();
+        }
+    };
+
+    // دالة موحدة لإضافة للسلة
+    window.addToCart = (prodId, sizeIndex = 0) => {
+        const p = allProducts.find(x => x.id === prodId);
+        if (!p) return;
+        
+        const selectedPriceObj = p.prices[sizeIndex] || p.prices[0];
+        const cartKey = `${prodId}-${sizeIndex}`;
+        
+        if (!cart[cartKey]) {
+            cart[cartKey] = {
+                name: p.name + (p.prices.length > 1 ? ` (${selectedPriceObj.name || ''})` : ''),
+                price: selectedPriceObj.price,
+                qty: 0
+            };
+        }
+        cart[cartKey].qty += 1;
+        updateCartFloat();
+    };
+
+    window.addToCartFromMenu = (prodId) => {
+        const p = allProducts.find(x => x.id === prodId);
+        const select = document.getElementById(`size-select-${prodId}`);
+        const selectedIndex = select ? select.value : 0;
+        const selectedPriceObj = p.prices[selectedIndex];
+        
+        // حل مشكلة الـ undefined: بنجرب نجيب الاسم من كذا مكان
+        const sizeName = selectedPriceObj.name || selectedPriceObj.size || selectedPriceObj.label || "";
+        const cartKey = `${prodId}-${selectedIndex}`;
+
+        if(!cart[cartKey]) {
+            cart[cartKey] = { 
+                name: p.name + (sizeName ? ` (${sizeName})` : ''), 
+                price: Number(selectedPriceObj.price), 
+                qty: 0 
+            };
+        }
+        cart[cartKey].qty += 1;
+        updateCartFloat();
+        
+        const btn = event.currentTarget;
+        btn.innerHTML = "✓";
+        setTimeout(() => { btn.innerHTML = "+"; }, 500);
+    };
+
+    // 2. تحديث شكل السلة وشريط الإجمالي
+    window.updateCartFloat = () => {
+        let total = calculateCartTotal(); // استدعاء الدالة التي عرفناها فوق
+        let count = 0;
+        for (let k in cart) { count += cart[k].qty; }
+
+        // تحديث الشريط الأحمر السفلي
+        const cartTotalEl = document.getElementById('cart-total');
+        const cartFloatEl = document.getElementById('cart-float');
+        
+        if (cartTotalEl) cartTotalEl.innerText = total + " ج.م";
+        if (cartFloatEl) cartFloatEl.style.display = count > 0 ? 'flex' : 'none';
+        
+        // تحديث السعر داخل صفحة السلة المنبثقة (إذا كانت مفتوحة)
+        const pageTotalEl = document.getElementById('cart-page-total');
+        if (pageTotalEl) pageTotalEl.innerText = total + " ج.م";
+    };
 
     window.openCheckoutModal = () => {
-        if (!currentUser) { alert("سجل بياناتك أولاً"); openLogin(); return; }
+        if (Object.keys(cart).length === 0) {
+            alert('السلة فارغة، أضف بعض الوجبات أولاً');
+            return;
+        }
+        if (!currentUser) { 
+            alert("سجل بياناتك أولاً"); 
+            openLogin(); 
+            return; 
+        }
         
-        // إنشاء مودال اختيار العنوان عند الدفع
+        // إغلاق صفحة السلة أولاً
+        document.getElementById('cart-overlay').style.display = 'none';
+        
+        // إنشاء مودال اختيار العنوان
         let addrOptions = currentUser.addresses.map((a, i) => `
             <label style="display:block; padding:10px; border:1px solid #ddd; margin-bottom:10px; border-radius:10px;">
                 <input type="radio" name="order_addr" value="${a}" ${i===0?'checked':''}> ${a}
@@ -866,35 +1071,62 @@ body {
 
         const modalHtml = `
             <div class="modal-content modern-modal">
-                <h3>إتمام الطلب</h3>
-                <p>اختر عنوان التوصيل:</p>
+                <h3 style="text-align:center; margin-bottom:20px;"><i class="fas fa-credit-card" style="color:var(--main-red); margin-left:10px;"></i> إتمام الطلب</h3>
+                <p style="text-align:center; color:#666; margin-bottom:20px;">اختر عنوان التوصيل:</p>
                 ${addrOptions}
-                <button class="btn-main" onclick="confirmOrder()">تأكيد الطلب</button>
-                <button class="btn-gps" onclick="document.getElementById('checkout-modal').style.display='none'" style="margin-top:10px; border:none;">إلغاء</button>
+                <button class="btn-main" onclick="confirmOrder()" style="margin-top:20px;">تأكيد الطلب <i class="fas fa-check"></i></button>
+                <button class="btn-gps" onclick="document.getElementById('checkout-modal').style.display='none'" style="margin-top:10px; border:none; color:#888;">رجوع للسلة</button>
             </div>
         `;
         let m = document.getElementById('checkout-modal');
-        if(!m) { m = document.createElement('div'); m.id = 'checkout-modal'; m.className = 'modal'; document.body.appendChild(m); }
+        if(!m) { 
+            m = document.createElement('div'); 
+            m.id = 'checkout-modal'; 
+            m.className = 'modal'; 
+            document.body.appendChild(m); 
+        }
         m.innerHTML = modalHtml;
         m.style.display = 'flex';
     };
 
     window.confirmOrder = async () => {
-        const addr = document.querySelector('input[name="order_addr"]:checked').value;
-        const total = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
-        await addDoc(collection(db, "orders"), {
-            customerName: currentUser.name,
-            customerPhone: currentUser.phone,
-            customerAddress: addr,
-            items: Object.values(cart),
-            totalPrice: total,
-            status: "جديد",
-            createdAt: serverTimestamp()
-        });
-        alert("تم استلام طلبك! 🎉");
-        cart = {}; updateCartFloat();
-        document.getElementById('checkout-modal').style.display = 'none';
-        document.getElementById('menu-overlay').style.display = 'none';
+        if (!currentUser) return alert("من فضلك سجل دخولك أولاً");
+
+        const addrRadio = document.querySelector('input[name="order_addr"]:checked');
+        if (!addrRadio) return alert("من فضلك اختر عنوان التوصيل");
+
+        const addr = addrRadio.value;
+        
+        // تحويل السلة لقائمة بسيطة عشان الفايربيز يقبلها
+        const itemsToSend = Object.values(cart).map(item => ({
+            name: item.name,
+            price: item.price,
+            qty: item.qty
+        }));
+
+        const total = itemsToSend.reduce((s, i) => s + (i.price * i.qty), 0);
+
+        try {
+            await addDoc(collection(db, "orders"), {
+                customerName: currentUser.name,
+                customerPhone: currentUser.phone,
+                customerAddress: addr,
+                items: itemsToSend,
+                totalPrice: total,
+                status: "جديد",
+                createdAt: serverTimestamp()
+            });
+
+            alert("تم استلام طلبك بنجاح! 🎉");
+            cart = {}; 
+            updateCartFloat();
+            document.getElementById('checkout-modal').style.display = 'none';
+            document.getElementById('cart-overlay').style.display = 'none';
+            document.getElementById('menu-overlay').style.display = 'none';
+        } catch (e) {
+            console.error("Error sending order: ", e);
+            alert("حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى.");
+        }
     };
 
     function listenToOrders() {
