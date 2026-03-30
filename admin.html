@@ -16,7 +16,7 @@
         <div style="background:white; padding:30px; border-radius:15px; display:flex; flex-direction:column; gap:10px; width:300px;">
             <input type="text" id="admin-user" placeholder="اسم المستخدم" style="padding:10px; border:1px solid #ddd; border-radius:5px;">
             <input type="password" id="admin-pass" placeholder="كلمة المرور" style="padding:10px; border:1px solid #ddd; border-radius:5px;">
-            <button onclick="handleAdminLogin()" style="background:#d2000a; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">دخول</button>
+            <button onclick="window.handleAdminLogin()" style="background:#d2000a; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">دخول</button>
         </div>
         <p id="login-error" style="color:yellow; margin-top:10px; display:none;">خطأ في البيانات!</p>
     </div>
@@ -318,7 +318,6 @@
             </tbody>
         </table>
     </div>
-</section>
 
         <!-- قسم التقارير -->
         <section id="reports-section" class="admin-section">
@@ -377,39 +376,46 @@ window.addEventListener('DOMContentLoaded', () => {
         // متغير عالمي لحفظ اسم الموظف الحالي
         let currentStaffName = "مدير"; 
 
-        window.handleAdminLogin = async function() {
-            const userInp = document.getElementById('admin-user').value.trim();
-            const passInp = document.getElementById('admin-pass').value.trim();
+window.handleAdminLogin = async function() {
+    const userInp = document.getElementById('admin-user').value.trim();
+    const passInp = document.getElementById('admin-pass').value.trim();
 
-            if (userInp === "admin" && passInp === "123") {
-                currentStaffName = "المدير العام";
-                loginSuccess({orders:true, records:true, chat:true, products:true, categories:true});
-                return;
-            }
+    if (userInp === "admin" && passInp === "123") {
+        const adminPerms = {orders:true, records:true, chat:true, products:true, categories:true};
+        loginSuccess(adminPerms, "المدير العام"); // أضفنا الاسم هنا
+        return;
+    }
 
-            try {
-                const q = window.query(window.collection(window.db, "staff"), 
-                          window.where("username", "==", userInp), 
-                          window.where("password", "==", passInp));
-                const querySnapshot = await window.getDocs(q);
+    try {
+        const q = window.query(window.collection(window.db, "staff"), 
+                  window.where("username", "==", userInp), 
+                  window.where("password", "==", passInp));
+        const querySnapshot = await window.getDocs(q);
 
-                if (!querySnapshot.empty) {
-                    const staffData = querySnapshot.docs[0].data();
-                    currentStaffName = staffData.username; // حفظ اسم الموظف
-                    loginSuccess(staffData.permissions);
-                } else {
-                    alert("بيانات الدخول غير صحيحة");
-                }
-            } catch (e) { alert("خطأ في الاتصال بالسيرفر"); }
-        };
-
-        function loginSuccess(perms) {
-            document.getElementById('admin-login-overlay').style.display = 'none';
-            applyDynamicPermissions(perms);
-            // تشغيل جلب البيانات
-            loadStaffList();
-            loadProds();
+        if (!querySnapshot.empty) {
+            const staffData = querySnapshot.docs[0].data();
+            loginSuccess(staffData.permissions, staffData.username); // أضفنا الاسم هنا
+        } else {
+            alert("بيانات الدخول غير صحيحة");
         }
+    } catch (e) { alert("خطأ في الاتصال بالسيرفر"); }
+};
+
+        // الدالة المعدلة لحفظ الجلسة
+function loginSuccess(perms, username) {
+    currentStaffName = username;
+    
+    // حفظ البيانات في المتصفح عشان لما يعمل ريفريش م يخرجش
+    localStorage.setItem('karmasha_admin_session', JSON.stringify({
+        name: username,
+        permissions: perms
+    }));
+
+    document.getElementById('admin-login-overlay').style.display = 'none';
+    applyDynamicPermissions(perms);
+    loadStaffList();
+    loadProds();
+}
 
         function applyDynamicPermissions(perms) {
             // إخفاء/إظهار العناصر بناءً على الصلاحيات المخزنة
@@ -437,7 +443,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
       <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot, orderBy, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot, orderBy, doc, updateDoc, deleteDoc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
        const firebaseConfig = {
         apiKey: "AIzaSyClhjCiMrdiFP4oGYktlLKBHP2Rtbj9ezQ",
@@ -460,8 +466,9 @@ window.addEventListener('DOMContentLoaded', () => {
         window.getDocs = getDocs;
         window.orderBy = orderBy;
         window.serverTimestamp = serverTimestamp;
-        window.doc = doc;         // سطر مهم جداً كان ناقصاً
-        window.updateDoc = updateDoc; // سطر مهم جداً كان ناقصاً
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+        window.getDoc = getDoc;  // Added for showOrderDetails
         // تعريف صوت التنبيه (صوت جرس تنبيه)
         const alertSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
         alertSound.loop = false; // لو عاوزه يكرر الصوت خليه true
@@ -494,44 +501,64 @@ window.addEventListener('DOMContentLoaded', () => {
 
            snapshot.forEach(d => {
                 const o = d.data();
-                // تصحيح مشكلة undefined في عرض الأصناف
-                const itemsList = o.items.map(i => {
-                    let itemName = i.name;
-                    if(i.size && i.size !== "undefined") itemName += ` (${i.size})`;
-                    return itemName;
-                }).join(' + ');
+
+                // تحويل الأصناف لشكل "ليست" منظمة بدلاً من سطر واحد
+                const itemsHtml = o.items.map(i => {
+                    // التأكد من أن الحجم ليس undefined أو فارغ
+                    const sizeDisplay = (i.size && i.size !== "undefined" && i.size !== "") ? 
+                                        `<span class="item-size">(${i.size})</span>` : "";
+                    
+                    return `
+                        <div class="order-item-row">
+                            <span class="item-name">● ${i.name}</span>
+                            ${sizeDisplay}
+                            <span class="item-qty">x1</span> 
+                        </div>
+                    `;
+                }).join('');
 
                 const html = `
-                <div class="order-card">
+                <div class="order-card enhanced-card">
                     <div class="card-header">
-                        <span class="order-id">#${d.id.substring(0,4)}</span>
-                        <span class="location-tag"><i class="fas fa-map-marker-alt"></i> ${o.customerAddress.split('-')[0]}</span>
+                        <span class="order-id">رقم الطلب: #${d.id.substring(0,5).toUpperCase()}</span>
+                        <span class="order-time-badge"><i class="far fa-clock"></i> ${o.createdAt ? new Date(o.createdAt.seconds * 1000).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}) : ''}</span>
                     </div>
-                    <div class="customer-info">
-                        <h4>${o.customerName}</h4>
-                        <p><i class="fas fa-phone"></i> ${o.customerPhone}</p>
-                        <p class="address-text">${o.customerAddress}</p>
+
+                    <div class="customer-section">
+                        <h4 class="cust-name"><i class="fas fa-user"></i> ${o.customerName}</h4>
+                        <div class="cust-details">
+                            <a href="tel:${o.customerPhone}" class="phone-link"><i class="fas fa-phone-alt"></i> ${o.customerPhone}</a>
+                            <p class="address-box"><i class="fas fa-map-marker-alt"></i> ${o.customerAddress}</p>
+                        </div>
                     </div>
                     
-                    <div class="items-box">
-                        ${itemsList}
+                    <div class="items-details-container">
+                        <p class="section-title">الأصناف المطلوبة:</p>
+                        <div class="items-list-wrapper">
+                            ${itemsHtml}
+                        </div>
                     </div>
 
-                    <div class="card-footer">
-                        ${o.status == 'جديد' ?
-                            `<button class="accept-btn" onclick="window.upStat('${d.id}','في المطبخ')">
-                                قبول <i class="fas fa-check-circle"></i>
-                            </button>` :
-                            `<button class="deliver-btn" onclick="window.upStat('${d.id}','تم')">
-                                تم التوصيل <i class="fas fa-motorcycle"></i>
-                            </button>`
-                        }
+                    <div class="card-footer-enhanced">
+                        <div class="total-price-section">
+                            <span class="label">الإجمالي:</span>
+                            <span class="price-value">${o.totalPrice} ج.م</span>
+                        </div>
 
-                        <button class="cancel-btn" onclick="window.askCancel('${d.id}')">
-                            إلغاء <i class="fas fa-times"></i>
-                        </button>
+                        <div class="status-actions">
+                            ${o.status == 'جديد' ?
+                                `<button class="accept-btn" onclick="window.upStat('${d.id}','في المطبخ')">
+                                    قبول <i class="fas fa-check-circle"></i>
+                                </button>` :
+                                `<button class="deliver-btn" onclick="window.upStat('${d.id}','تم')">
+                                    تم التوصيل <i class="fas fa-motorcycle"></i>
+                                </button>`
+                            }
 
-                        <span class="price-tag">${o.totalPrice} ج</span>
+                            <button class="cancel-btn" onclick="window.askCancel('${d.id}')">
+                                إلغاء <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>`;
 
