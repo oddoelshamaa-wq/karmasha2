@@ -557,9 +557,15 @@ body {
             </div>
         </div>
 
-        <button class="btn-main btn-save" onclick="saveProfile()" style="margin-top:20px;">
-            حفظ وإغلاق <i class="fas fa-check-circle"></i>
-        </button>
+       <!-- زر تسجيل الخروج باللون الرمادي أو الشفاف -->
+<button onclick="logout()" style="width: 100%; background: none; border: 1px solid #ccc; color: #888; padding: 10px; border-radius: 12px; margin-top: 10px; font-family: 'Cairo'; cursor: pointer;">
+    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج ومسح البيانات
+</button>
+
+<!-- زر الحفظ الأساسي -->
+<button class="btn-main btn-save" onclick="saveProfile()" style="margin-top:10px;">
+    حفظ وإغلاق <i class="fas fa-check-circle"></i>
+</button>
     </div>
 </div>
 <!-- مودال إتمام الطلب - كان ناقصاً في الكود الأصلي -->
@@ -609,7 +615,79 @@ body {
 
     // تعريف المتغيرات العامة
     let allCategories = [], allProducts = [], cart = {}, navigationHistory = [];
+    let tempCoords = null;  // لتخزين الإحداثيات مؤقتاً
     window.currentUser = { name: "", phone: "", addresses: [], selectedAddressIndex: 0 };
+
+    // وظيفة تحديد الموقع GPS المطورة
+    window.getLocation = async function(targetId) {
+        const txt = document.getElementById('gps-status'), 
+              addrInput = document.getElementById(targetId);
+
+        // التأكد من وجود العناصر
+        if (!addrInput || !txt) return alert("خطأ في العناصر المطلوبة.");
+
+        // التأكد من أن المتصفح يدعم خاصية تحديد الموقع
+        if (!navigator.geolocation) return alert("متصفحك لا يدعم تحديد الموقع.");
+
+        txt.innerText = "جاري التحديد...";
+        txt.style.color = "#007bff";
+
+        // إضافة حالة التحميل للزر إن وجد
+        const gpsBtns = document.querySelectorAll('.btn-gps, .btn-gps-small');
+        gpsBtns.forEach(btn => btn.classList.add('loading'));
+
+        // طلب الإحداثيات من القمر الصناعي/الشبكة
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const lat = pos.coords.latitude, 
+                  lon = pos.coords.longitude;
+            
+            // حفظ الإحداثيات في متغير مؤقت لاستخدامها لاحقاً
+            tempCoords = { lat, lng: lon };
+
+            try {
+                // استخدام API خارجي (OpenStreetMap) لتحويل الإحداثيات لعنوان نصي باللغة العربية
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&accept-language=ar`);
+                const data = await res.json();
+                
+                if (data && data.address) {
+                    const a = data.address;
+                    const building = a.house_number || "";
+                    const road = a.road || "";
+                    const suburb = a.suburb || a.city_district || "";
+                    
+                    // دمج البيانات في خانة العنوان
+                    addrInput.value = `${building ? 'عمارة '+building+'، ' : ''}${road}${suburb ? '، '+suburb : ''}`;
+                    txt.innerText = "تم التحديد ✅";
+                    txt.style.color = "#27ae60";
+                } else {
+                    // fallback: إحداثيات فقط
+                    addrInput.value = `إحداثيات: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+                    txt.innerText = "تم التحديد (إحداثيات فقط)";
+                    txt.style.color = "#f39c12";
+                }
+            } catch (e) { 
+                console.error("خطأ في تحويل العنوان:", e);
+                txt.innerText = "تم التحديد (إحداثيات فقط)"; 
+                txt.style.color = "#f39c12";
+                // fallback coords
+                addrInput.value = `إحداثيات: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+            }
+            
+            // إزالة حالة التحميل
+            gpsBtns.forEach(btn => btn.classList.remove('loading'));
+        }, (err) => { 
+            gpsBtns.forEach(btn => btn.classList.remove('loading'));
+            let msg = "فشل في تحديد الموقع. ";
+            switch(err.code) {
+                case err.PERMISSION_DENIED: msg += "تأكد من السماح بـ GPS."; break;
+                case err.POSITION_UNAVAILABLE: msg += "الموقع غير متاح."; break;
+                case err.TIMEOUT: msg += "انتهت مهلة التحديد."; break;
+            }
+            txt.innerText = msg;
+            txt.style.color = "#e74c3c";
+            alert(msg);
+        }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
+    };
 
     // الدالة الأساسية للتحميل
     async function init() {
@@ -644,6 +722,17 @@ body {
             
             updateHeaderUI();
             renderAddresses();
+        }
+    };
+
+    // دالة تسجيل الخروج - المهمة الجديدة
+    window.logout = function() {
+        if (confirm("هل أنت متأكد من تسجيل الخروج؟ سيتم مسح اسمك وعناوينك المسجلة من هذا الجهاز.")) {
+            // 1. مسح البيانات من ذاكرة المتصفح
+            localStorage.removeItem('karmasha_user');
+            
+            // 2. إعادة تحميل الصفحة لتصفير كل شيء
+            location.reload();
         }
     };
 
@@ -734,16 +823,16 @@ window.deleteAddress = function(event, index) {
         document.getElementById('login-modal').style.display = 'none';
         alert("تم الحفظ بنجاح ✅");
     };
-
-    function updateHeaderUI() {
-        const actionBtn = document.querySelector('.header-actions');
-        actionBtn.innerHTML = `
-            <div class="action-btn" onclick="openOrders()"><i class="fas fa-receipt"></i></div>
-            <div onclick="openLogin()" style="background:white; padding:5px 15px; border-radius:20px; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1)">
-                أهلاً، ${window.currentUser.name.split(' ')[0]} <i class="fas fa-user-edit" style="margin-right:5px; color:red"></i>
-            </div>
-        `;
-    }
+function updateHeaderUI() {
+    const actionBtn = document.querySelector('.header-actions');
+    actionBtn.innerHTML = `
+        <div class="action-btn" onclick="openOrders()"><i class="fas fa-receipt"></i></div>
+        <div style="background:white; padding:5px 15px; border-radius:20px; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1); display:flex; align-items:center; gap:10px;">
+            <span onclick="openLogin()" style="cursor:pointer">أهلاً، ${window.currentUser.name.split(' ')[0]}</span>
+            <i class="fas fa-sign-out-alt" onclick="logout()" style="color:red; cursor:pointer" title="خروج"></i>
+        </div>
+    `;
+}
 
     // استدعاء التشغيل في نهاية السكربت لضمان تعريف كل شيء
     init();
